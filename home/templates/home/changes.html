@@ -1,0 +1,781 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | Changes{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_new_problem_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_project_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_change_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_check_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+
+{% block nav_changes %}
+class="active"
+{% endblock %}
+{% block nav_list_changes %}
+class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block pg_admins %}
+{% if test %}
+    <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+        </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+<link href="{% static 'home/pages/changes/changes.css' %}" rel="stylesheet">
+<link href="{% static 'home/plugins/calendar/css/availability-calendar.css' %}" rel="stylesheet" type="text/css">
+
+<!--Content-->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>Change List</h2><br>
+                        <div class="form-line col-md3">
+                            <input type="date" class="form-control no-resize" id="myInputType" oninput="SearchDate('yes')">
+                        </div>
+                    </div>
+                    <div class="body">
+                        <div >
+                            <div style="display:inline-block">
+                                <h5>From:</h5>
+                                <input type="date" class="form-control no-resize" id="filterDate1" oninput="SearchDate('yes')" >
+                            </div>
+                            <div style="display:inline-block">
+                                <h5>To:</h5>
+                                <input type="date" class="form-control no-resize" id="filterDate2" oninput="SearchDate('yes')" >
+                            </div>
+                            <div style="display:inline-block">
+
+                                <button type="button" class="btn btn-sm btn-primary waves-effect waves-light" onclick="filterDate()">Filter</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="table-responsive-vertical shadow-z-1 " style="overflow: auto; ">
+                            <div class="wmd-view">
+                                <input type="submit" class="btn btn-success waves-effect waves-light" name="btnExport" value="Export Table to Excel" id="btnExport" />
+                                <table id="table" class="table table-hover table-mc-light-blue " style="white-space: nowrap; border-style: ridge;">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center; vertical-align: middle">ID</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Summary</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Category</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 2rem">Change Reference</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 3rem">Change Goal</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 3rem">Server/account</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Owner 1</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Owner 2</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 2rem">Status owner 1</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 2rem">Status Owner 2</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 2rem">Owner 2 Comment</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 2rem">Final status</th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 1.5rem; padding-right: 1.5rem">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for a in changes %}
+                                        <tr class="pb">
+                                            <td data-title="ID" style="padding-left: 0.6rem; padding-right: 1rem ">
+                                                {% if not testR %}<form class="form-horizontal" role="form" method="post" action="{% url 'home:change_temp'  a.id %}" id="sectional{{ a.id }}">
+                                                    {% csrf_token %}
+                                                    <a  {% if test or login.uid == a.ch_owner1 %}href="#" onclick="document.getElementById('sectional{{ a.id }}').submit();"{% else %} style="color: #3c3c3c"{% endif %}>
+                                                        {% endif %}<span>{{ a.changeId }}</span>
+                                                        {% if not testR %}
+                                                        <i class="small material-icons">create</i>
+                                                    </a>
+                                                </form>{% endif %}
+                                            </td>
+                                            <td data-title="Summary" style="padding-left: 2.6rem; padding-right: 3rem; text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_desc }}</td>
+                                            <td data-title="Category">{{ a.ch_category }}</td>
+                                            <td data-title="Change Reference" style="padding-left: 2.6rem; padding-right: 3rem; text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_ref }}</td>
+                                            <td data-title="Change Goal" style="padding-left: 2.6rem; padding-right: 3rem; text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_goal }}</td>
+                                            <td data-title="Server/account" style="padding-left: 2.6rem; padding-right: 3rem;text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_server_account }}</td>
+                                            <td data-title="Owner 1">{{ a.ch_owner1 }}</td>
+                                            <td data-title="Owner 2">
+                                                {% if not testR %}<a href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal"
+                                                   data-target="#myModal{{ a.id }}">{% endif %}
+                                                    <span>{{ a.ch_owner2 }}</span>
+                                                {% if not testR %}
+                                                {% if not a.ch_owner2 %}
+                                                        <i class="small material-icons">create</i>
+                                                    {% endif %}
+                                                </a>
+                                                {% endif %}
+
+                                                <!--Begin Modal Window-->
+                                                <div class="modal fade left" id="myModal{{ a.id }}">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h3 class="pull-left no-margin">Owner 2 {{ a.changeId }}</h3>
+                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                        title="Close"><span
+                                                                        class="glyphicon glyphicon-remove"></span>
+                                                                </button>
+                                                            </div>
+                                                            <form class="form-horizontal" role="form" method="post"
+                                                                  action="{% url 'home:add_owner2'  a.id %}">
+                                                                {% csrf_token %}
+                                                                <div class="modal-body">
+                                                                     <select required class="form-control show-tick" name="owner2{{ a.id }}">
+                                                                        {% if not a.ch_owner2 %}
+                                                                            <option value="">-- Please select --</option>
+                                                                            {% for s in admins %}
+                                                                                <option value="{{ s.userLDAP }}">{{ s.userLDAP }}</option>
+                                                                            {% endfor %}
+                                                                        {% else %}
+                                                                            <option value="{{ a.ch_owner2 }}">{{ a.ch_owner2 }}</option>
+                                                                            {% for s in admins %}
+                                                                                {% if not s.userLDAP == a.ch_owner2 %}
+                                                                                    <option value="{{ s.userLDAP }}">{{ s.userLDAP }}</option>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        {% endif %}
+                                                                    </select>
+
+                                                                    <br>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button class="btn btn-sm btn-primary waves-effect" type="submit">
+                                                                        Submit
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td data-title="Status Owner 1">
+                                                {% if a.ch_stat_owner1 %}
+                                                    {% if not testR %}
+                                                    <a {% if test or login.uid == a.ch_owner1 %}href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal" onclick="document.getElementById('sectional{{ a.id }}').submit();"{% endif %}>
+                                                    {% endif %}
+                                                <i class="large material-icons" style="color: lightseagreen">done</i>
+                                                    {% if not testR %}
+                                                    </a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <i class="large material-icons" style="color: crimson">close</i>
+                                                {% endif %}
+                                            </td>
+                                            <td data-title="Status owner 2">
+                                             {% if not testR %}
+                                                {% if a.ch_owner2 and a.ch_stat_owner1 %}
+                                                <form class="form-horizontal" role="form" method="post" action="{% url 'home:change_temp2'  a.id %}" id="sectional2{{ a.id }}">
+                                                    {% csrf_token %}
+                                                    <a href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal" onclick="document.getElementById('sectional2{{ a.id }}').submit();">
+                                             {% endif %}
+                                                        {% if a.ch_stat_owner2 %}
+                                                            <i class="large material-icons" style="color: lightseagreen">done</i>
+                                                        {% else %}
+                                                            <i class="large material-icons" style="color: crimson">create</i>
+                                                        {% endif %}
+                                             {% if not testR %}
+                                                    </a>
+                                                </form>
+                                              {% endif %}
+                                                {% endif %}
+                                            </td>
+                                            <td data-title="owner 2 Comment">
+                                                <a href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal"
+                                                   data-target="#myModalOwner2Comment{{ a.id }}">
+
+                                                    {% if a.ch_owner2 %}
+                                                        <i class="small material-icons">create</i>
+                                                    {% endif %}
+                                                </a>
+
+                                                <!--Begin Modal Window-->
+                                                <div class="modal fade left" id="myModalOwner2Comment{{ a.id }}">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h3 class="pull-left no-margin">{{ a.ch_owner2 }} Comment : {{ a.changeId }}</h3>
+                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                        title="Close"><span
+                                                                        class="glyphicon glyphicon-remove"></span>
+                                                                </button>
+                                                            </div>
+                                                            {% if not testR %}
+                                                            <form class="form-horizontal" role="form" method="post"
+                                                                  action="{% url 'home:add_owner2_comment'  a.id %}">
+                                                                {% csrf_token %}
+                                                                {% endif %}
+                                                                <div class="modal-body">
+                                                                    <h4>{{ a.ch_stat_owner2_comment_date }}</h4>
+                                                                     <div class="form-line">
+                                                                        <textarea rows="4" class="form-control no-resize"
+                                                                              placeholder="Please type what you want..."
+                                                                              name="ch_stat_owner2_comment{{ a.id }}">{{ a.ch_stat_owner2_comment }}</textarea>
+                                                                     </div>
+
+                                                                    <br>
+                                                                </div>
+                                                                {% if not testR %}
+                                                                <div class="modal-footer">
+                                                                    <button class="btn btn-sm btn-primary waves-effect" type="submit">
+                                                                        Submit
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td data-title="Final status">
+                                                {% if a.ch_owner2 and a.ch_owner1 and a.ch_stat_owner1 and a.ch_stat_owner2 %}
+                                                <a href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal"
+                                                   data-target="#myModalfinal{{ a.id }}">
+                                                    <span>{{ a.ch_final_status }}</span>
+                                                    {% if not a.ch_final_status %}
+                                                        <i class="small material-icons">create</i>
+                                                    {% endif %}
+                                                </a>
+
+                                                <!--Begin Modal Window-->
+                                                <div class="modal fade left" id="myModalfinal{{ a.id }}">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h3 class="pull-left no-margin">Final status {{ a.changeId }}</h3>
+                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                        title="Close"><span
+                                                                        class="glyphicon glyphicon-remove"></span>
+                                                                </button>
+                                                            </div>
+                                                            {% if not testR %}
+                                                            <form class="form-horizontal" role="form" method="post"
+                                                                  action="{% url 'home:add_final_status'  a.id %}">
+                                                                {% csrf_token %}
+                                                                {% endif %}
+                                                                <div class="modal-body">
+                                                                            <h4>{{ a.ch_final_status_date }}</h4>
+                                                                            <div class="form-line">
+                                                                                         <textarea rows="2" class="form-control no-resize"
+                                                                                                   name="ch_final_status{{ a.id }}">{{ a.ch_final_status }}</textarea>
+                                                                            </div>
+                                                                    <br>
+                                                                </div>
+                                                                 {% if not testR %}
+                                                                <div class="modal-footer">
+                                                                    <button class="btn btn-sm btn-primary waves-effect" type="submit">
+                                                                        Submit
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </td>
+                                            <td data-title="Remove" style="padding-left: 1.5rem; padding-right: 1.5rem">
+                                                {% if testA or login.uid == a.ch_owner1 %}
+                                                <form name="supp_ch{{ a.id }}" id="supp_ch{{ a.id }}" action="{% url 'home:supp_ch' a.id %}" method="post">{% csrf_token %}
+                                                    <a href="#" style="color: crimson" onclick="showConfirmMessage{{ a.id }}()">
+                                                        <i class="material-icons">remove_circle</i>
+                                                    </a>
+                                                </form>
+                                                <script>
+                                                function showConfirmMessage{{ a.id }}() {
+                                                    swal({
+                                                        title: "Are you sure?",
+                                                        text: "You will not be able to recover {{ a.changeId }}!",
+                                                        type: "warning",
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: "#DD6B55",
+                                                        confirmButtonText: "Yes, delete it!",
+                                                        closeOnConfirm: false
+                                                    }, function () {
+                                                        swal("Deleted!", "{{ a.changeId }} has been deleted.", "success");
+                                                        document.getElementById('supp_ch{{ a.id }}').submit();
+                                                    });
+                                                }
+                                            </script>
+                                                {% else %}
+                                                    Must be Admin or owner
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <br>
+                        <!-- Calendar -->
+                            <div class="row clearfix">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="row clearfix">
+                                            <div class="col-xs-12 ol-sm-12 col-md-12 col-lg-12">
+                                                <div class="panel-group" id="accordion_19" role="tablist" aria-multiselectable="true">
+                                                    <div class="panel panel-col-teal">
+                                                        <div class="panel-heading" role="tab" id="headingThree_19">
+                                                            <h4 class="panel-title">
+                                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapseThree_19" aria-expanded="false" aria-controls="collapseThree_19">
+                                                                    <i class="material-icons">perm_contact_calendar</i> Calendar
+                                                                </a>
+                                                            </h4>
+                                                        </div>
+                                                        <div id="collapseThree_19" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree_19">
+                                                            <div class="panel-body">
+                                                                <div id="calendar"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        <!-- #END Calendar -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="visibility: hidden;">
+            <table id="tableToExport" class="table table-hover table-mc-light-blue" style="white-space: nowrap; border-style: ridge;">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; vertical-align: middle">ID</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Summary</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Category</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 2rem">Change Reference</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 3rem">Change Goal</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 3rem">Server/account</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Owner 1</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 3rem">Owner 2</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 2rem">Status owner 1</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 2rem">Status Owner 2</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 2rem">Owner 2 Comment</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.6rem; padding-right: 2rem">Final status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in changes %}
+                    <tr class="pb">
+                        <td data-title="ID" style="padding-left: 0.6rem; padding-right: 1rem "><span>{{ a.changeId }}</span></td>
+                        <td data-title="Summary" style="padding-left: 2.6rem; padding-right: 3rem; text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_desc }}</td>
+                        <td data-title="Category">{{ a.ch_category }}</td>
+                        <td data-title="Change Reference" style="padding-left: 2.6rem; padding-right: 3rem; text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_ref }}</td>
+                        <td data-title="Change Goal" style="padding-left: 2.6rem; padding-right: 3rem; text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_goal }}</td>
+                        <td data-title="Server/account" style="padding-left: 2.6rem; padding-right: 3rem;text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ch_server_account }}</td>
+                        <td data-title="Owner 1">{{ a.ch_owner1 }}</td>
+                        <td data-title="Owner 2"><span>{{ a.ch_owner2 }}</span></td>
+                        <td data-title="Status Owner 1">{{ a.ch_stat_owner1 }}</td>
+                        <td data-title="Status owner 2">{{ a.ch_stat_owner2 }}</td>
+                        <td data-title="owner 2 Comment">{{ a.ch_stat_owner2_comment }}</td>
+                        <td data-title="Final status"><span>{{ a.ch_final_status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <script type="text/javascript">
+        $(function () {
+            $('[id*=btnExport]').on('click', function () {
+                ExportToExcel('tableToExport');
+                location.reload();
+            });
+        });
+        function ExportToExcel(Id) {
+            var tab_text = "<table border='2px'><tr>";
+            var textRange;
+            var j = 0;
+            tab = document.getElementById(Id);
+            var headerRow = $('[id*=tableToExport] tr:first');
+            tab_text += headerRow.html() + '</tr><tr>';
+            var rows = $('[id*=tableToExport] tr:not(:has(th))');
+            for (j = 0; j < rows.length; j++) {
+                if ($(rows[j]).css('display') != 'none') {
+                    tab_text = tab_text + rows[j].innerHTML + "</tr>";
+                }
+            }
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, ""); //remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf("MSIE ");
+            if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+            {
+                txtArea1.document.open("txt/html", "replace");
+                txtArea1.document.write(tab_text);
+                txtArea1.document.close();
+                txtArea1.focus();
+                sa = txtArea1.document.execCommand("SaveAs", true, Id + ".xls");
+            }
+            else {                 //other browser not tested on IE 11
+                sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+            }
+            return (sa);
+        }
+    </script>
+
+    </section>
+<!--#Content-->
+
+<script src="{% static 'home/pages/changes/changes.js' %}"></script>
+<script language="JavaScript">
+    function genBut(n,a){
+    return "<button type=\"button\" class=\"btn btn-xs btn-default btn-block\" data-toggle=\"modal\" data-target='"+a+"'><span class=\"badge\">"+n+"</span>   More...</button>"
+}
+    function genMore(a,b,c,d,e){
+        if (e == d){
+            return "<tr>"+
+            "<td data-title=\"ID\" style='height: 100%;'>"+
+                "<a href=\"#\" style=\"color: #3c3c3c\" onclick=\"document.getElementById('"+a+"').submit();\">"+
+                    "<span>"+b+"</span>"+
+                    "<i class=\"small material-icons\">create</i>"+
+                "</a>"+
+            "</td>"+
+            "<td data-title=\"Description\" style='height: 100%;text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line'>"+c+
+            "</td>"
+             "<tr>"
+        }
+    }
+
+    (function ($) {
+                var weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+                function AvailabilityCalendar(container, bookedDates) {
+                    this.date = new Date();
+                    this.date.setDate(1);
+
+                    this.container = container;
+                    this.bookedDates = bookedDates;
+
+                    this.createCalendar();
+                    this.renderMonth();
+                }
+
+                AvailabilityCalendar.prototype = {
+                    __createToolbar: function () {
+                        var $toolbar = $('<div></div>').appendTo(this.container);
+                        $toolbar.addClass('availability-calendar-toolbar');
+
+                        this.$monthLabel = $('<span></span>').appendTo($toolbar);
+                        var $inputContainer = $('<span></span>').appendTo($toolbar);
+
+                        $inputContainer.append('<input type="button" class="btn waves-effect" title="Previous month" value="&#10094;" style="padding-top: 7px;padding-bottom: 7px;margin-right: 5px;">');
+                        $inputContainer.append('<input type="button" class="btn waves-effect" title="This month" value="This Month"> ');
+                        $inputContainer.append('<input type="button" class="btn waves-effect" title="Next month" value="&#10095;">');
+
+                        var $inputs = $inputContainer.children('input');
+                        var self = this;
+
+                        $inputs.eq(0).on('click', function () {
+                            self.date.setUTCMonth(self.date.getUTCMonth() - 1);
+                            self.renderMonth();
+                        });
+
+                        $inputs.eq(1).on('click', function () {
+                            self.date = new Date();
+                            self.date.setUTCDate(1);
+                            self.renderMonth();
+                        });
+
+                        $inputs.eq(2).on('click', function () {
+                            self.date.setUTCMonth(self.date.getUTCMonth() + 1);
+                            self.renderMonth();
+                        });
+                    },
+                    __createTable: function () {
+                        var $table = $('<table></table>').appendTo(this.container);
+                        $table.addClass('availability-calendar');
+
+                        // Weekday headers
+                        var $tr = $('<tr></tr>').appendTo($table);
+
+                        weekdays.forEach(function (day) {
+                            $('<th></th>').html(day).appendTo($tr);
+                        });
+
+                        // Day cells
+                        for (var i = 0; i < 6; ++i) {
+                            $tr = $('<tr></tr>').appendTo($table);
+                            $tr.append('<td></td><td></td><td></td><td></td><td></td><td></td><td></td>');
+                        }
+
+                        this.$cells = $table.find('td');
+                    },
+                    createCalendar: function () {
+                        this.__createToolbar();
+                        this.__createTable();
+                    },
+
+                    /**
+                     * Month rendering methods
+                     */
+                    __addPreviousMonthDays: function (date, cellIndexes, dates) {
+                        var firstWeekdayOfMonth = date.getDay() - 1;
+                        if (firstWeekdayOfMonth < 0) firstWeekdayOfMonth = 6;
+
+                        if (firstWeekdayOfMonth > 0) {
+                            date.setUTCDate(0);
+                            var numDays = date.getUTCDate();
+
+                            for (var i = numDays - firstWeekdayOfMonth + 1; i <= numDays; ++i) {
+                                this.$cells.eq(dates.length).html(i).addClass('ex-month');
+
+                                date.setDate(i);
+                                var dateInt = date.valueOf();
+
+                                cellIndexes[dateInt] = dates.length;
+                                dates.push(dateInt);
+                            }
+                        }
+                    },
+                    __addThisMonthDays: function (date, year, month, cellIndexes, dates) {
+                        date.setUTCFullYear(year, month + 1, 0); // Need to reset year
+                        var numDays = date.getUTCDate();
+                        var modalName,aaa,bbb,t,test,test2;
+                        var bt1='';
+                        var bt2='';
+                        var n = 0;
+                        for (var i = 1; i <= numDays; ++i) {
+                            modalName = year+'-'+(month+1)+'-'+i;
+                            t=modalName.split('-')
+                            if(t[1].length == 1){
+                                t[1] = '0'+t[1]
+                            }
+                            if(t[2].length == 1){
+                                t[2] = '0'+t[2]
+                            }
+                            modalName = t[0] +'-'+ t[1] +'-' + t[2];
+                            //bbb="<button type=\"button\" class=\"btn btn-xs btn-default btn-block\">More...</button>"
+                            test = false
+                            {% for a in changes %}
+                                if('{{ a.ch_date }}' == modalName){
+                                    test = true;
+                                    if('{{ a.ch_stat_owner1 }}' == ''){
+                                        aaa =  "<button type=\"button\" class=\"btn btn-xs  btn-block\" style='background-color: crimson;color: white' onclick=\"document.getElementById('sectional{{ a.id }}').submit();\">{{ a.changeId }}</button>";
+                                        test2 = false;
+                                        n = 0;
+                                        {% for b in changes %}
+                                            if('{{ b.ch_date }}' == modalName && '{{ b.changeId }}' != '{{ a.changeId }}'){
+                                                test2=true;
+                                                n++;
+                                            }
+                                        {% endfor %}
+                                        if (test2 == true)
+                                            aaa +=genBut(n,'#'+modalName.replace(' ','')+'list');
+                                        else
+                                            aaa +='<br>'
+                                    }else{
+                                        aaa =  "<button type=\"button\" class=\"btn btn-xs btn-success btn-block\" onclick=\"document.getElementById('sectional{{ a.id }}').submit();\">{{ a.changeId }}</button>";
+                                        test2 = false;
+                                        n = 0;
+                                        {% for b in changes %}
+                                            if('{{ b.ch_date }}' == modalName && '{{ b.changeId }}' != '{{ a.changeId }}'){
+                                                test2=true;
+                                                n++;
+                                            }
+                                        {% endfor %}
+                                        if (test2 == true)
+                                            aaa +=genBut(n,'#'+modalName.replace(' ','')+'list');
+                                        else
+                                            aaa +='<br>'
+                                    }
+                                }
+                            {% endfor %}
+                            if (test == true)
+                                bt1 =aaa
+                            else bt1 ='<br><br>'
+
+                            this.$cells.eq(dates.length).html(
+                                "<b>"+i+"</b>"+"<br><br>"+
+                                bt1+
+                                "{% if not testR %}<a href=\"#\" class='btn-floating btn-large btn-block' data-toggle=\"modal\" data-target='#"+modalName.replace(' ','')+"'><i class='material-icons'>add</i></a>{% endif %}"+
+
+                                "<form class=\"form-horizontal\" role=\"form\" method=\"post\"action=\"{% url 'home:new_change' %}\">{% csrf_token %}"+
+                                "<div class=\"modal fade left\" id="+modalName.replace(' ','')+">"+
+                                "<div class=\"modal-dialog modal-sm\"><div class=\"modal-content\"><div class=\"modal-header\">"+
+                                "<h3 class=\"pull-left no-margin\">"+modalName+"</h3>"+
+                                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" title=\"Close\"><span class=\"glyphicon glyphicon-remove\"></span></button></div>"+
+                                "<div class=\"modal-body\">" +
+                                    "<input type='hidden' name='change_date' value='"+modalName.replace('Add ','')+"'>"+
+                                    "<span style='margin-right: 20%;font-size: large'><strong>Add new Change</strong></span>"+
+                                    "<button type=\"submit\" class=\"btn bg-blue btn-circle-lg waves-effect waves-circle waves-float\" style='background-color:lightseagreen;'>"+
+                                    "<i class=\"material-icons\" style='color:white;'>add</i></button>"+
+                                "</div><div class=\"modal-footer\">"+
+                                "</div> </div> </div> </div></form>"+
+
+                                "<div class=\"modal fade left\" id='"+modalName.replace(' ','')+"list'>"+
+                                "<div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\">"+
+                                "<h3 class=\"pull-left no-margin\">Change list for "+modalName+"</h3>"+
+                                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" title=\"Close\"><span class=\"glyphicon glyphicon-remove\"></span></button></div>"+
+                                "<div class=\"modal-body\">" +
+
+                                "<div class=\"table-responsive-vertical shadow-z-1 \" >"+
+                                    "<table class=\"table table-hover table-mc-light-blue\" >"+
+                                        "<thead>"+
+                                            "<tr>"+
+                                                "<th style=\"text-align: center; vertical-align: middle;\">ID</th>"+
+                                                "<th style=\"text-align: center; vertical-align: middle;\">Description</th>"+
+                                            "</tr>"+
+                                        "</thead>"+
+                                        "<tbody>"+
+                                        "{% for a in changes %}"+
+                                            "<span style='display: none'>"+genMore('sectional{{ a.id }}','{{ a.changeId }}','{{ a.ch_desc }}','{{ a.ch_date }}',modalName)+"<span>"+
+                                        "{% endfor %}"+
+                                        "</tbody>"+
+                                    "</table>"+
+                                "</div><br><br>"+
+                                    "<input type='hidden' name='change_date' value='"+modalName.replace('Add ','')+"'>"+
+                                    "{% if not testR %}<form class=\"form-horizontal\" role=\"form\" method=\"post\"action=\"{% url 'home:new_change' %}\">{% csrf_token %}"+
+                                    "<input type='hidden' name='change_date' value='"+modalName.replace('Add ','')+"'>"+
+                                    "<span style='margin-right: 5%;font-size: medium'><strong>Add new Change</strong></span>"+
+                                    "<button type=\"submit\" class=\"btn bg-blue btn-circle waves-effect waves-circle waves-float\" style='background-color:lightseagreen;'>"+
+                                    "<i class=\"material-icons\" style='color:white;'>add</i></button></form>{% endif %}"+
+                                "</div><div class=\"modal-footer\">"+
+                                "</div> </div> </div> </div></form>"
+
+                            );
+                            bt1 =''
+
+                            date.setUTCDate(i);
+                            var dateInt = date.valueOf();
+
+                            cellIndexes[dateInt] = dates.length;
+                            dates.push(dateInt);
+                        }
+                    },
+                    __addNextMonthDays: function (date, month, cellIndexes, dates) {
+                        if (dates.length < 42) {
+                            date.setUTCMonth(month + 1, 1);
+                            var remainingDays = 42 - dates.length;
+
+                            for (var i = 1; i <= remainingDays; ++i) {
+                                this.$cells.eq(dates.length).html(i).addClass('ex-month');
+
+                                date.setUTCDate(i);
+                                var dateInt = date.valueOf();
+
+                                cellIndexes[dateInt] = dates.length;
+                                dates.push(dateInt);
+                            }
+                        }
+                    },
+                    __addEvents: function (cellIndexes, dates) {
+                        var firstDate = dates[0];
+                        var lastDate = dates[dates.length - 1];
+                        var self = this;
+
+                        this.bookedDates.forEach(function (date) {
+                            if (date.start <= lastDate && date.end >= firstDate) {
+                                var startIndex = cellIndexes[date.start];
+                                var endIndex = cellIndexes[date.end];
+
+                                if (startIndex !== undefined) {
+                                    self.$cells.eq(startIndex).addClass('unavailable').append('<div class="first"></div>');
+                                    ++startIndex;
+                                }
+                                else {
+                                    startIndex = cellIndexes[firstDate];
+                                }
+
+                                if (endIndex !== undefined) {
+                                    self.$cells.eq(endIndex).addClass('unavailable').append('<div class="last"></div>');
+                                    --endIndex;
+                                }
+                                else {
+                                    endIndex = cellIndexes[lastDate];
+                                }
+
+                                self.$cells.slice(startIndex, endIndex + 1).addClass('unavailable').append('<div></div>');
+                            }
+                        });
+                    },
+                    renderMonth: function () {
+                        var cellIndexes = {};
+                        var dates = [];
+
+                        var year = this.date.getUTCFullYear();
+                        var month = this.date.getUTCMonth();
+                        var date = new Date(year, month, 1);
+
+                        this.$monthLabel.html(months[month] + ' ' + year);
+                        this.$cells.removeClass('ex-month');
+                        this.$cells.filter('.unavailable').removeClass('unavailable').children().remove();
+
+                        this.__addPreviousMonthDays(date, cellIndexes, dates);
+                        this.__addThisMonthDays(date, year, month, cellIndexes, dates);
+                        this.__addNextMonthDays(date, month, cellIndexes, dates);
+
+                        this.__addEvents(cellIndexes, dates);
+                    }
+                };
+
+                $.fn.availabilityCalendar = function (bookedDates) {
+                    var dates = [];
+
+                    bookedDates.forEach(function (date) {
+                        var start = new Date(date.start);
+                        var end = new Date(date.end);
+
+                        start.setHours(0, 0, 0, 0);
+                        end.setHours(0, 0, 0, 0);
+
+                        start = start.valueOf();
+                        end = end.valueOf();
+
+                        if (start <= end) {
+                            dates.push({
+                                start: start,
+                                end: end
+                            });
+                        }
+                    });
+
+                    this.each(function () {
+                        new AvailabilityCalendar(this, dates);
+                    });
+
+                    return this;
+                };
+            })(jQuery);
+    var unavailableDates = [
+    //{start: '2017-08-31', end: '2017-08-31'},
+    ];
+
+    $('#calendar').availabilityCalendar(unavailableDates);
+</script>
+{% endif %}
+{% endblock %}
+

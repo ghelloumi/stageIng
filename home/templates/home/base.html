@@ -1,0 +1,283 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Favicon-->
+    <link rel="icon" href="{% static 'home/images/favicon.ico' %}" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link href="{% static 'home/css/google-api.css' %}" rel="stylesheet"
+          type="text/css">
+
+    <!-- Bootstrap Core Css -->
+    <link href="{% static 'home/plugins/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+
+    <!-- Waves Effect Css -->
+    <link href="{% static 'home/plugins/node-waves/waves.css' %}" rel="stylesheet"/>
+
+    <!-- Animation Css -->
+    <link href="{% static 'home/plugins/animate-css/animate.css' %}" rel="stylesheet"/>
+
+    <!-- Sweet Alert Css -->
+    <link href="{% static 'home/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet"/>
+
+    <!-- Wait Me Css -->
+    <link href="{% static 'home/plugins/waitme/waitMe.css' %}" rel="stylesheet"/>
+
+    <!-- Bootstrap Select Css -->
+    <link href="{% static 'home/plugins/bootstrap-select/css/bootstrap-select.css' %}" rel="stylesheet"/>
+
+    <!-- Bootstrap Switch -->
+    <link href="{% static 'home/plugins/bootstrap-switch/css/bootstrap-switch.css' %}" rel="stylesheet"/>
+
+    <!-- Bootstrap Tagsinput Css -->
+    <link href="{% static 'home/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css' %}" rel="stylesheet">
+
+    <!-- Jquery Core Js -->
+    <script src="{% static 'home/plugins/jquery/jquery.min.js' %}"></script>
+
+    <!--jQuery-TimePicki-->
+    <link href="{% static 'home/plugins/jquery-TimePicki/css/timepicki.css' %}" rel="stylesheet">
+    <script src="{% static 'home/plugins/jquery-TimePicki/js/timepicki.js' %}"></script>
+
+
+    <!-- ForHome -->
+        <!--WaitMe Css-->
+        <link href="{% static 'home/plugins/waitme/waitMe.css' %}" rel="stylesheet" />
+
+        <!-- Custom Css -->
+        <link href="{% static 'home/css/style.css' %}" rel="stylesheet">
+
+    <link href="{% static 'home/css/themes/all-themes.css' %}" rel="stylesheet"/>
+
+</head>
+
+<body class="theme-light-green">
+<!-- Page Loader -->
+<div class="page-loader-wrapper">
+    <div class="loader">
+        <div class="preloader">
+            <div class="spinner-layer pl-red">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+        <p>Please wait...</p>
+    </div>
+</div>
+<!-- #END# Page Loader -->
+
+<!-- Overlay For Sidebars -->
+<div class="overlay"></div>
+<!-- #END# Overlay For Sidebars -->
+
+<!-- Top Bar -->
+<nav class="navbar">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse"
+               data-target="#navbar-collapse" aria-expanded="false"></a>
+            <a href="javascript:void(0);" class="bars"></a>
+            <a class="navbar-brand" href="{% url 'home:index' %}"><img src="{% static "home/images/logo.png" %}" width="100"
+                                                       style="margin-top: -4%"
+                                                       height="35"></a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar-collapse" >
+
+        </div>
+    </div>
+</nav>
+<!-- #Top Bar -->
+
+<!-- sideBars -->
+<section>
+    <!-- Left Sidebar -->
+    <aside id="leftsidebar" class="sidebar">
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="image">
+                <img src="{% block user_img %}{% endblock %}" width="48" height="48" alt="User"/>
+            </div>
+            <div class="info-container">
+                <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% block user_name %}{% endblock %}
+                </div>
+                <div class="email">{% block user_email %}{% endblock %}</div>
+            </div>
+        </div>
+        <!-- #User Info -->
+        <!--Menu-->
+        <div class="menu">
+            <ul class="list">
+                <li class="header">MAIN NAVIGATION</li>
+                <!--Home-->
+                <li {% block nav_home %}{% endblock %}>
+                    <a href="{% url 'home:index' %}">
+                        <i class="material-icons">home</i>
+                        <span>Home</span>
+                    </a>
+                </li>
+
+                <!--Problems-->
+                <li {% block nav_problems %}{% endblock %} >
+                    <a href="{% url 'home:problems' %}" class="menu-toggle">
+                        <i class="material-icons">warning</i>
+                        <span>Problems</span>
+                    </a>
+                    <ul class="ml-menu">
+                        <li {% block nav_list_problems %}{% endblock %}>
+                            <a href="{% url 'home:problems' %}">Problems list</a>
+                        </li>
+                        <li {% block nav_new_problem %}{% endblock %} {% block nav_new_problem_read_only %}{% endblock %}>
+                            <a href="{% url 'home:new_problem' %}">Add new</a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <!--Projects-->
+                <li {% block nav_projects %}{% endblock %} >
+                    <a href="{% url 'home:projects' %}" class="menu-toggle">
+                        <i class="material-icons">dashboard</i>
+                        <span>Projects</span>
+                    </a>
+                    <ul class="ml-menu">
+                        <li {% block nav_list_projects %}{% endblock %}>
+                            <a href="{% url 'home:projects' %}">Projects list</a>
+                        </li>
+                        <li {% block nav_new_project %}{% endblock %} {% block nav_new_project_read_only %}{% endblock %}>
+                            <a href="{% url 'home:new_project' %}">Add new</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!--Changes-->
+                <li {% block nav_changes %}{% endblock %}>
+                    <a href="{% url 'home:changes' %}" class="menu-toggle">
+                        <i class="material-icons">restore</i>
+                        <span>Change</span>
+                    </a>
+                    <ul class="ml-menu">
+                        <li {% block nav_list_changes %}{% endblock %}>
+                            <a href="{% url 'home:changes' %}">Change list</a>
+                        </li>
+                        <li {% block nav_new_change %}{% endblock %} {% block nav_new_change_read_only %}{% endblock %}>
+                            <a href="{% url 'home:new_change' %}">Add new</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!--Checks-->
+                <li {% block nav_check %}{% endblock %}>
+                    <a href="{% url 'home:checks' %}" class="menu-toggle">
+                        <i class="material-icons">offline_pin</i>
+                        <span>Check</span>
+                    </a>
+                    <ul class="ml-menu">
+                        <li {% block nav_list_check %}{% endblock %}>
+                            <a href="{% url 'home:checks' %}">Check list</a>
+                        </li>
+                        <li {% block nav_new_check %}{% endblock %} {% block nav_new_check_read_only %}{% endblock %}>
+                            <a href="{% url 'home:new_check' %}">Add new</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!--Admins-->
+                <li {% block nav_admins %}{% endblock %}>
+                    {% block pg_admins %}{% endblock %}
+                </li>
+                <!--#Menu-->
+            </ul>
+        </div>
+        <!--#Menu-->
+        <!-- Footer -->
+        <div class="legal">
+            <div class="copyright">
+                &copy; 2017 - 2018 <a href="javascript:void(0);">FIS - SGN and MarketMap Project and Operations </a>.
+            </div>
+            <div class="version">
+                <b>Version: </b> 1.0.0
+            </div>
+        </div>
+        <!-- #Footer -->
+    </aside>
+    <!-- #END# Left Sidebar -->
+</section>
+<!-- #sideBars -->
+
+
+<!-- ************************************************************************************-->
+{% block body %}
+{% endblock %}
+<!-- ************************************************************************************-->
+<!-- Bootstrap Core Js -->
+<script src="{% static 'home/plugins/bootstrap/js/bootstrap.js' %}"></script>
+
+<!-- Select Plugin Js -->
+<script src="{% static 'home/plugins/bootstrap-select/js/bootstrap-select.js' %}"></script>
+
+<!-- Slimscroll Plugin Js -->
+<script src="{% static 'home/plugins/jquery-slimscroll/jquery.slimscroll.js' %}"></script>
+
+<!-- Jquery Validation Plugin Css -->
+<script src="{% static 'home/plugins/jquery-validation/jquery.validate.js' %}"></script>
+
+<!-- JQuery Steps Plugin Js -->
+<script src="{% static 'home/plugins/jquery-steps/jquery.steps.js' %}"></script>
+
+<!-- Sweet Alert Plugin Js -->
+<script src="{% static 'home/plugins/sweetalert/sweetalert.min.js' %}"></script>
+
+<!-- Waves Effect Plugin Js -->
+<script src="{% static 'home/plugins/node-waves/waves.js' %}"></script>
+
+<!-- Jquery CountTo Plugin Js -->
+<script src="{% static 'home/plugins/jquery-countto/jquery.countTo.js' %}"></script>
+
+<!-- Sparkline Chart Plugin Js -->
+<script src="{% static 'home/plugins/jquery-sparkline/jquery.sparkline.js' %}"></script>
+
+<!-- Autosize Plugin Js -->
+<script src="{% static 'home/plugins/autosize/autosize.js' %}"></script>
+
+<!-- Moment Plugin Js -->
+<script src="{% static 'home/plugins/momentjs/moment.js' %}"></script>
+
+<!-- Bootstrap Switch -->
+<script src="{% static 'home/plugins/bootstrap-switch/js/bootstrap-switch.js' %}"></script>
+
+<!-- Bootstrap Tags Input Plugin Js -->
+<script src="{% static 'home/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js' %}"></script>
+
+<!-- 24Hour -->
+<script src="{% static 'home/js/24hours.js' %}"></script>
+
+
+<!-- For Home -->
+    <!-- Wait Me Plugin Js -->
+    <script src="{% static 'home/plugins/waitme/waitMe.js' %}"></script>
+
+    <!-- Custom Js -->
+    <script src="{% static 'home/js/colored.js' %}"></script>
+
+<!-- Custom Js -->
+<script src="{% static 'home/js/admin.js' %}"></script>
+<script src="{% static 'home/js/pages/new-problem.js' %}"></script>
+
+</body>
+</html>

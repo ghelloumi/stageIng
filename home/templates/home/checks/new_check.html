@@ -1,0 +1,388 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | New Problem{% endblock %}
+
+<link href="{% static 'home/css/pages/new_problem.css' %}" rel="stylesheet" type="text/css">
+<script src="{% static 'home/plugins/node-waves/waves.js' %}"></script>
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_check %}
+    class="active"
+{% endblock %}
+{% block nav_new_check %}
+    class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block pg_admins %}
+{% if test %}
+        <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+        </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+
+    <!--Content-->
+        <section class="content">
+        <div class="container-fluid">
+            <!-- form -->
+            <form action="{% url 'home:add_check' %}" method="POST">
+                {% csrf_token %}
+                <div>
+                    <div class="row clearfix">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="card">
+                                <div class="header">
+                                    <h2>ADDING NEW CHECK FORM</h2><br>
+                                    <select class="form-control show-tick" name="ck_type">
+                                        <option value="SGN">SGN</option>
+                                        <option value="MarketMap">MarketMap</option>
+                                    </select>
+                                </div>
+                                <div class="body">
+
+                                    <script language="JavaScript">
+                                        function fnCategory() {
+                                            var e = document.getElementById("fnCategoryId");
+                                            var fnCategoryId = e.options[e.selectedIndex].value;
+                                            if (fnCategoryId == 'Recurrent Check') {
+                                                document.getElementById('rec1').style = "";
+                                                document.getElementById('rec3').style = "";
+                                                document.getElementById('rec31').style = "display: none;";
+                                                document.getElementById("ck_date_no_endID").required = true;
+                                                document.getElementById("ck_descID").required = true;
+                                                document.getElementById("ck_ref_idID").required = true;
+
+                                                document.getElementById("ck_hour_no_endID").required = true;
+                                                document.getElementById("ck_dateID").required = false;
+                                                document.getElementById("ck_hourID").required = false;
+
+                                            } else {
+                                                document.getElementById('rec1').style = "display: none;";
+                                                document.getElementById('rec3').style = "display: none;";
+                                                document.getElementById('rec31').style = "";
+
+                                                document.getElementById("ck_descID").required = false;
+                                                document.getElementById("ck_ref_idID").required = false;
+                                                document.getElementById("month").required = false;
+                                                document.getElementById("day").required = false;
+                                                document.getElementById("ck_date_no_endID").required = false;;
+                                                document.getElementById("ck_hour_no_endID").required = false;
+                                                document.getElementById("ck_dateID").required = true;
+                                                document.getElementById("ck_hourID").required = true;
+                                            }
+                                        }
+
+                                        function fnNoEndDay() {
+                                            if (document.getElementById('noEndDayText').innerHTML == 'Daily task') {
+                                                document.getElementById('noEndDayText').innerHTML = "Change to simple task";
+                                                document.getElementById('noEndDatIn1').style = "display: none;";
+                                                document.getElementById('noEndDatIn2').style = "";
+
+                                                document.getElementById("month").required = true;
+                                                document.getElementById("day").required = true;
+
+                                                document.getElementById("ck_date_no_endID").required = false;;
+
+                                            } else {
+                                                document.getElementById('noEndDayText').innerHTML = "Daily task"
+                                                document.getElementById('noEndDatIn2').style = "display: none;";
+                                                document.getElementById('noEndDatIn1').style = "";
+                                                document.getElementById("month").required = false;
+                                                document.getElementById("day").required = false;
+
+                                                document.getElementById("ck_date_no_endID").required = true;
+                                            }
+                                        }
+                                    </script>
+
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        {# category #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Category<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <select required class="form-control show-tick" name="ck_category" id="fnCategoryId" onchange="fnCategory()">
+                                                    <option value="">-- Please select --</option>
+                                                    <option value="Night Check">Night Check</option>
+                                                    <option value="Morning Check">Morning Check</option>
+                                                    <option value="Recurrent Check">Recurrent Check</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        {# Server/account #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Server/account<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <textarea required rows="1" class="form-control no-resize"
+                                                          placeholder="Please type what you want..."
+                                                          name="ck_serv_acc"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!--For Recurrent check if chosen-->
+                                        <div class="col-sm-6 col-md-12 col-xs-12 " id="rec1">
+                                            {# Description #}
+                                            <div class="col-sm-6">
+                                                <h2 class="card-inside-title">Description<span style="color: red">*</span></h2>
+                                                <div class="form-line">
+                                                    <textarea rows="1" class="form-control no-resize"
+                                                              placeholder="Please type what you want..."
+                                                              name="ck_desc" id="ck_descID"></textarea>
+                                                </div>
+                                            </div>
+                                            {# Reference ID #}
+                                            <div class="col-sm-6">
+                                                <h2 class="card-inside-title">Reference ID<span style="color: red">*</span></h2>
+                                                <div class="form-line">
+                                                    <textarea rows="1" class="form-control no-resize"
+                                                              placeholder="Please type what you want..."
+                                                              name="ck_ref_id" id="ck_ref_idID"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {# ToDo Date #}
+                                        <div class="col-sm-6 col-md-12 col-xs-12" id="rec3">
+                                            {# Date #}
+                                            <div class="col-sm-6">
+                                                <h2 class="card-inside-title">
+                                                    To Do Date
+                                                    <span style="color: red">*</span>
+                                                    <span style="padding-left: 25%;color: cornflowerblue">
+                                                        <span>
+                                                            <a href="javascript:void(0)" onclick="fnNoEndDay()" id="noEndDayText">Daily task</a>
+                                                        </span>
+                                                    </span>
+                                                </h2>
+                                                <div id="noEndDatIn1">
+                                                    <input type="date" class="form-control no-resize" id="ck_date_no_endID" name="ck_date_no_end">
+                                                </div>
+
+                                                <div id="noEndDatIn2" style="display: none">
+                                                    <div class="col-sm-12">
+                                                        <select id="month" name="ck_date_no_end_month">
+                                                            <option value="">Select Month</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <select id="day" name="ck_date_no_end_day">
+                                                            <option value="">Select Day</option>
+                                                        </select>
+                                                    </div>
+                                                    <script>
+                                                        // select for schedule task
+                                                        var monthArray = new Array();
+                                                        var dayArray = new Array();
+                                                        var dayArray = ['*','Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                                                        var monthArray = ['*','January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+                                                        for(m = 0; m <= 12; m++) {
+                                                            var optn = document.createElement("OPTION");
+                                                            optn.text = monthArray[m];
+                                                            optn.value = monthArray[m];
+
+                                                            document.getElementById('month').options.add(optn);
+                                                        }
+
+                                                        for(m = 0; m <= 7; m++) {
+                                                            var optn = document.createElement("OPTION");
+                                                            optn.text = dayArray[m];
+                                                            optn.value = dayArray[m];
+                                                            document.getElementById('day').options.add(optn);
+                                                        }
+                                                    </script>
+                                                </div>
+                                            </div>
+                                            {# Hour #}
+                                            <div class="col-sm-6">
+                                                <h2 class="card-inside-title">Hour<span style="color: red">*</span></h2>
+                                                <div class="form-line">
+                                                    <input name="ck_hour_no_end" id="ck_hour_no_endID" type="text" class="textfield form-control no-resize" placeholder="hh:mm" size="5" />
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <!--#For Recurrent check if chosen-->
+
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        {# ChangeID #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">ChangeId<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <select class="form-control show-tick" name="ck_changeId">
+                                                    <option value="">-- Please select --</option>
+                                                    {% for a in changes %}
+                                                    <option value="{{ a.changeId }}">{{ a.changeId }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        {# title #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Title<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <textarea required rows="1" class="form-control no-resize"
+                                                          placeholder="Please type what you want..."
+                                                          name="ck_title"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        {# Change performed #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Change performed<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <textarea required rows="1" class="form-control no-resize"
+                                                          placeholder="Please type what you want..."
+                                                          name="ck_change_performed"></textarea>
+
+                                            </div>
+                                        </div>
+                                        {# Check to be done #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Check to be done<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <textarea required rows="1" class="form-control no-resize"
+                                                          placeholder="Please type what you want..."
+                                                          name="ck_done"></textarea>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        {# Rollback File(s) #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Rollback File(s)<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <textarea required rows="1" class="form-control no-resize"
+                                                          placeholder="Please type what you want..."
+                                                          name="ck_rollback"></textarea>
+
+                                            </div>
+                                        </div>
+                                        {# Action in case of Issue #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Action in case of Issue<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <textarea required rows="1" class="form-control no-resize"
+                                                          placeholder="Please type what you want..."
+                                                          name="ck_action"></textarea>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {# priority #}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Priority<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <select required class="form-control show-tick" name="ck_priority">
+                                                    <option value="">-- Please select --</option>
+                                                    <option value="Low">Low</option>
+                                                    <option value="Medium">Medium</option>
+                                                    <option value="High">High</option>
+                                            </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {# Date #}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 " id="rec31">
+                                        {# Date #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">
+                                                Due Date<span style="color: red">*</span>
+                                            </h2>
+                                            <input required type="date" class="form-control no-resize" name="ck_date" id="ck_dateID">
+                                        </div>
+                                        {# Hour #}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Due Hour<span style="color: red">*</span></h2>
+                                            <div class="form-line">
+                                                <input name="ck_hour" id="ck_hourID" type="text" class="textfield form-control no-resize"  placeholder="hh:mm" size="5" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect" style="margin-left: 80%" value="Add Check">
+                                    </input>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- #END Form#  -->
+        </div>
+    </section>
+    <!--#Content-->
+
+<script language="JavaScript">
+    function fn1(){
+       document.getElementById('rec1').style = "display: none;";
+       document.getElementById('rec3').style = "display: none;";
+    }
+    window.onload = fn1()
+</script>
+<script type='text/javascript'>
+    $('#ck_hourID').timepicki({
+        show_meridian:false,
+        min_hour_value:0,
+        max_hour_value:23,
+        step_size_minutes:1,
+        overflow_minutes:true,
+        increase_direction:'up',
+        disable_keyboard_mobile: true});
+    $('#ck_hour_no_endID').timepicki({
+        show_meridian:false,
+        min_hour_value:0,
+        max_hour_value:23,
+        step_size_minutes:1,
+        overflow_minutes:true,
+        increase_direction:'up',
+        disable_keyboard_mobile: true});
+
+</script>
+<script type='text/javascript'>
+    var today = new Date();
+    var dd = today.getUTCDate();
+    var mm = today.getUTCMonth()+1; //January is 0!
+    var yyyy = today.getUTCFullYear();
+     if(dd<10){
+            dd='0'+dd
+        }
+        if(mm<10){
+            mm='0'+mm
+        }
+
+    today = yyyy+'-'+mm+'-'+dd;
+    dateIns = document.getElementsByTagName("input");
+    for  (i=0; i<dateIns.length; i++){
+        if (dateIns[i].type =="date"){
+            dateIns[i].setAttribute("min", today);
+        }
+    }
+</script>
+
+{% endif %}
+{% endblock %}
+
+
+

@@ -1,0 +1,175 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | Comments{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_problems %}
+class="active"
+{% endblock %}
+{% block nav_list_problems %}
+class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block pg_admins %}
+{% if test %}
+    <a href="{% url 'home:admins' %}">
+        <i class="material-icons">perm_identity</i>
+        <span>Administration</span>
+    </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+
+    <!--Content-->
+    <section class="content">
+        <div class="container-fluid">
+            <div>
+                <div class="row clearfix">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card">
+                            <div class="header">
+                                <h2>Comment for {{ a.problemId }}</h2><br>
+                            </div>
+                            <div class="body">
+                                <div class="table-responsive-vertical shadow-z-1 " style="overflow: auto; " id="double-scroll">
+                                    <table id="_appendHere" class="table table-hover table-mc-light-blue" style="white-space: nowrap">
+                                        <thead>
+                                        <tr>
+                                            <th style="text-align: center; vertical-align: middle; ">Date</th>
+                                            <th style="text-align: center; vertical-align: middle; ">Name</th>
+                                            <th style="text-align: center; vertical-align: middle; ">Comment</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        {% for c in comments %}
+                                            {% if c.problem_id == a.id and not c.text == '' %}
+                                           <tr>
+                                                <td data-title="Date" style="text-align: center;padding-left: 2rem; padding-right: 2rem;">{{ c.date }}</td>
+                                                <td data-title="Name" style="text-align: center;padding-left: 2rem; padding-right: 2rem;">{{ c.name }}</td>
+                                                <td data-title="Comment" style="padding-left: 2rem; padding-right: 2rem;text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">{{ c.text }}</td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                        </tbody>
+
+                                        <script>
+                                            function fn1(){
+                                                var table, rows, switching, i, x, y, shouldSwitch;
+                                                table = document.getElementById("_appendHere");
+                                                switching = true;
+                                                while (switching) {
+                                                    switching = false;
+                                                    rows = table.getElementsByTagName("tr");
+                                                    for (i = 1; i < (rows.length - 1); i++) {
+                                                        shouldSwitch = false;
+                                                        x = rows[i].getElementsByTagName("td")[0];
+                                                        y = rows[i + 1].getElementsByTagName("td")[0];
+
+                                                        if (Number(y.innerHTML.substring(6, 8)) > Number(x.innerHTML.substring(6, 8))) {
+                                                            shouldSwitch = true;
+                                                            break;
+                                                        } else if (Number(y.innerHTML.substring(6, 8)) == Number(x.innerHTML.substring(6, 8))) {
+                                                            if (Number(y.innerHTML.substring(3, 5)) > Number(x.innerHTML.substring(3, 5))) {
+                                                                shouldSwitch = true;
+                                                                break;
+                                                            } else if (Number(y.innerHTML.substring(3, 5)) == Number(x.innerHTML.substring(3, 5))) {
+                                                                if (Number(y.innerHTML.substring(0, 2)) > Number(x.innerHTML.substring(0, 2))) {
+                                                                    shouldSwitch = true;
+                                                                    break;
+                                                                }else if(Number(y.innerHTML.substring(0, 2)) == Number(x.innerHTML.substring(0, 2))){
+                                                                    if (Number(y.innerHTML.substring(9, 11)) > Number(x.innerHTML.substring(9, 11))) {
+                                                                        shouldSwitch = true;
+                                                                        break;
+                                                                    }else if(Number(y.innerHTML.substring(9, 11)) == Number(x.innerHTML.substring(9, 11))){
+                                                                        if (Number(y.innerHTML.substring(12, 14)) > Number(x.innerHTML.substring(12, 14))) {
+                                                                            shouldSwitch = true;
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    if (shouldSwitch) {
+                                                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                                                        switching = true;
+                                                    }
+                                                }
+                                            }
+                                            window.onload = fn1()
+                                        </script>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {% if not testR %}
+                            <div class="footer">
+                                <form name="add_pb_comment{{ a.id }}"
+                                      action="{% url 'home:add_pb_comment' a.id %}" method="post" id="event">
+                                    {% csrf_token %}
+                                    <div class="form-line">
+                                        <div class="form-line">
+                                            <textarea rows="2" class="form-control no-resize"
+                                                      placeholder="Please type what you want..."
+                                                      name="add_pb_commentF{{ a.id }}"></textarea>
+                                        </div>
+                                        <br>
+                                        <div style="padding-left: 90%">
+                                        <button type="submit" class="btn btn-primary waves-effect" style='background-color:lightseagreen;'>
+                                        <i class="material-icons" style='color:white;'>add</i></button>
+                                        </div>
+                                    </div><br>
+                                </form>
+                            </div>
+                            {% endif %}
+
+                            <script>
+                                {% if not testR %}
+                                $('#event').submit(function(e){
+                                e.preventDefault();
+                                url = $(this).attr('action')
+                                data = $(this).serialize();
+                                $.post(url, data, function(response){
+                                     console.log('submited')
+                                })
+                                })
+                                {% endif %}
+
+                                setInterval(function() {
+                                $.ajax({
+                                  url: 'get_more_tables/{{ a.id }}',
+                                  success: function(data) {
+                                  $('#_appendHere').html(data);
+                                  console.log('done')
+                                  }
+
+                                });
+                                }, 1000)
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </section>
+
+    <!--#Content-->
+
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,66 @@
+<table id="_appendHere" class="table table-hover table-mc-light-blue" style="white-space: nowrap">
+    <thead>
+    <tr>
+        <th style="text-align: center; vertical-align: middle; ">Date</th>
+        <th style="text-align: center; vertical-align: middle; ">Name</th>
+        <th style="text-align: center; vertical-align: middle; ">Comment</th>
+    </thead>
+    <tbody>
+
+    {% for c in comments %}
+        {% if c.problem_id == a.id and not c.text == '' %}
+        <tr>
+            <td data-title="Date" style="text-align: center;padding-left: 2rem; padding-right: 2rem;">{{ c.date }}</td>
+            <td data-title="Name" style="text-align: center;padding-left: 2rem; padding-right: 2rem;">{{ c.name }}</td>
+            <td data-title="Comment" style="padding-left: 2rem; padding-right: 2rem;text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">{{ c.text }}</td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+    <script>
+        function fn1(){
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("_appendHere");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.getElementsByTagName("tr");
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("td")[0];
+                    y = rows[i + 1].getElementsByTagName("td")[0];
+
+                    if (Number(y.innerHTML.substring(6, 8)) > Number(x.innerHTML.substring(6, 8))) {
+                        shouldSwitch = true;
+                        break;
+                    } else if (Number(y.innerHTML.substring(6, 8)) == Number(x.innerHTML.substring(6, 8))) {
+                        if (Number(y.innerHTML.substring(3, 5)) > Number(x.innerHTML.substring(3, 5))) {
+                            shouldSwitch = true;
+                            break;
+                        } else if (Number(y.innerHTML.substring(3, 5)) == Number(x.innerHTML.substring(3, 5))) {
+                            if (Number(y.innerHTML.substring(0, 2)) > Number(x.innerHTML.substring(0, 2))) {
+                                shouldSwitch = true;
+                                break;
+                            }else if(Number(y.innerHTML.substring(0, 2)) == Number(x.innerHTML.substring(0, 2))){
+                                if (Number(y.innerHTML.substring(9, 11)) > Number(x.innerHTML.substring(9, 11))) {
+                                    shouldSwitch = true;
+                                    break;
+                                }else if(Number(y.innerHTML.substring(9, 11)) == Number(x.innerHTML.substring(9, 11))){
+                                    if (Number(y.innerHTML.substring(12, 14)) > Number(x.innerHTML.substring(12, 14))) {
+                                        shouldSwitch = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+            }
+        window.onload = fn1()
+    </script>
+</table>

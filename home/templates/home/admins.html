@@ -1,0 +1,210 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | Admins{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_admins %}
+    class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block pg_admins %}
+{% if test %}
+<a href="{% url 'home:admins' %}">
+    <i class="material-icons">perm_identity</i>
+    <span>Administration</span>
+</a>
+{% endif %}
+{% endblock %}
+
+
+{% block body %}
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+
+
+    <!--Content-->
+    <section class="content">
+        <div class="container-fluid">
+            {% if not test %}
+            <form id="goToHome" action="{% url 'home:index' %}" method="post">{% csrf_token %}
+                <input type="hidden" class="btn btn-primary waves-effect" id="modal" data-type="confirm" onclick="showConfirmMessage()">
+            </form>
+            {% else %}
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>
+                                Administration section
+                            </h2>
+                        </div>
+                        <div class="body">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" {% if not add_ldap_err %}class="active"{% endif %}>
+                                    <a href="#users_with_icon_title" data-toggle="tab">
+                                        <i class="material-icons">face</i> USERS
+                                    </a>
+                                </li>
+                                <li role="presentation" {% if add_ldap_err %}class="active"{% endif %}>
+                                    <a href="#add_with_icon_title" data-toggle="tab">
+                                        <i class="material-icons">add_circle</i> ADD USERS
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade {% if not add_ldap_err %}in active{% endif %}" id="users_with_icon_title">
+                                    <b>Users Content</b>
+
+                                    <div class="body table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>LDAP</th>
+                                                    <th>NAME</th>
+                                                    <th>E-MAIL</th>
+                                                    <th>PRIVILEGES</th>
+                                                    <th>REMOVE</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for a in users %}
+                                                <tr>
+                                                    {% for i in a %}
+                                                    {% if a|length == forloop.counter %}
+                                                    <td style="padding-left: 3.2%">
+                                                        <form class="form-horizontal" role="form" method="post"
+                                                                    action="{% url 'home:change_adminPriv'  i %}" id="adminPrivForm{{ forloop.parentloop.counter }}">
+                                                            {% csrf_token %}</form>
+                                                        <form name="supp_user{{ i }}" id="supp_user{{ i }}" action="{% url 'home:supp_user' i %}" method="post">{% csrf_token %}
+                                                            <a href="#" style="color: crimson;" onclick="showConfirmMessage{{ i }}()">
+                                                                <i class="material-icons">remove_circle</i>
+                                                            </a>
+                                                        </form>
+                                                        <script>
+                                                            function showConfirmMessage{{ i }}() {
+                                                                swal({
+                                                                    title: "Are you sure?",
+                                                                    text: "User will not be able to access Admin view!",
+                                                                    type: "warning",
+                                                                    showCancelButton: true,
+                                                                    confirmButtonColor: "#DD6B55",
+                                                                    confirmButtonText: "Yes, delete it!",
+                                                                    closeOnConfirm: false
+                                                                }, function () {
+                                                                    swal("Deleted!", "User has been deleted.", "success");
+                                                                    document.getElementById('supp_user{{ i }}').submit();
+                                                                });
+                                                            }
+                                                        </script>
+                                                    </td>
+                                                    {% else %}
+                                                        {% if forloop.counter == a|length|add:"-1" %}
+                                                            <td>
+                                                                <select class="form-control show-tick" name="adminPriv{{ forloop.parentloop.counter }}"
+                                                                        onchange="document.getElementById('adminPrivForm{{ forloop.parentloop.counter }}').submit()">
+                                                                    <option value="{{ i }}">{{ i }}</option>
+                                                                    {% for s in priv2 %}
+                                                                        {% if not s == i %}
+                                                                            <option value="{{ s }}">{{ s }}</option>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </td>
+                                                        {% else %}
+                                                        <td>{{ i }}</td>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade {% if add_ldap_err %}in active{% endif %}" id="add_with_icon_title">
+                                   <br><br>
+                            <form class="form-horizontal" action="{% url 'home:addUsers' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="row clearfix">
+                                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                        <label>LDAP {{ t }}</label>
+                                    </div>
+                                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                        <div class="form-group">
+                                            <div class="form-line">
+                                                <input type="text" name="add_ldap" class="form-control" placeholder="Enter LDAP">
+                                            </div>
+                                            <p style="color: red">{{ add_ldap_err }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row clearfix">
+                                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                        <label>Privileges</label>
+                                    </div>
+                                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                        <div class="form-group">
+                                            <select class="form-control show-tick" name="add_priv">
+                                                <option value="">-- Please select --</option>
+                                                <option value="suser">Admin</option>
+                                                <option value="user">Normal User</option>
+                                                <option value="ruser">Read Only</option>
+                                            </select>
+                                        </div>
+                                        <p style="color: cornflowerblue">(*)If not selected, Normal User will be chosen automatically</p>
+                                    </div>
+                                </div>
+
+
+                                <div class="row clearfix">
+                                    <div class="col-lg-offset-2 col-md-offset-2 col-sm-offset-4 col-xs-offset-5">
+                                        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Add</button>
+                                    </div>
+                                </div>
+                            </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    <!--#Content-->
+
+
+<script language="JavaScript">
+    jQuery(function(){
+   jQuery('#modal').click();
+});
+    function showConfirmMessage() {
+        swal({
+            title: "You're not an admin user!",
+            text: "You have to be an admin to access this page.",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Go back to Home",
+            closeOnConfirm: false
+        }, function () {
+            swal("Redirecting!", "Your are redirected to the home page.", "success");
+            document.getElementById('goToHome').submit();
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}
+

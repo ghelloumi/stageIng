@@ -1,0 +1,459 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | New Project{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_projects %}
+class="active"
+{% endblock %}
+{% block nav_new_project %}
+class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block pg_admins %}
+{% if test %}
+        <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+        </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+
+<!--Content-->
+<section class="content">
+    <div class="container-fluid">
+        <!-- form -->
+        <form action="{% url 'home:add_project' %}" method="POST">
+            {% csrf_token %}
+            <div>
+                <div class="row clearfix">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card">
+                            <div class="header">
+                                <h2>ADDING NEW PROJECT FORM</h2><br>
+                                <script language="JavaScript">
+                                    function fn() {
+                                        var e = document.getElementById("pj_team");
+                                        var pj_team = e.options[e.selectedIndex].value;
+                                        if (pj_team == 'SGN') {
+                                            document.getElementById('pj_teamOp').style = "";
+                                        } else {
+                                            document.getElementById('pj_teamOp').style = "display: none;";
+                                        }
+                                    }
+                                </script>
+                                <select class="form-control show-tick" name="pj_team" id='pj_team' onchange="fn()">
+                                    <option value="MarketMap">MarketMap</option>
+                                    <option value="SGN">SGN</option>
+                                </select>
+                            </div>
+                            <div class="body">
+                                <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                    {# ID#}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">ProjectID</h2>
+                                        <select class="form-control show-tick" name="project_id">
+                                            <option value="new">New</option>
+                                            {% for i in s %}
+                                                <option value="{{ i }}">{{ i }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    {# Sgn Choice#}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 " id="pj_teamOp" style="display: none;">
+                                        <h2 class="card-inside-title">Choice for SGN <span style="color: red">*</span></h2>
+                                        <p style="color: red">{{ pj_teamOp_err }}</p>
+                                        <select class="form-control show-tick" name="pj_teamOp">
+                                            {% if not pj_teamOp %}
+                                                <option value="">-- Please select --</option>
+                                                <option value="Ops">Ops</option>
+                                                <option value="SDM">SDM</option>
+                                            {% else %}
+                                                <option value="{{ pj_teamOp }}">{{ pj_teamOp }}</option>
+                                                {% for t in teamOpList %}
+                                                    {% if not t == pj_teamOp %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                    </div>
+
+                                    {# Short Description#}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Project Description <span style="color: red">*</span></h2>
+                                        <p style="color: red">{{ pj_projectDescription_err }}</p>
+                                        <div class="form-line">
+                                                            <textarea rows="3" class="form-control no-resize"
+                                                                      placeholder="Please type what you want..."
+                                                                      name="projectDesc">{{ pj_projectDescription }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Type#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Type <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_type_err }}</p>
+                                            <select class="form-control show-tick" name="type">
+                                                {% if not pj_type %}
+                                                    <option value="">-- Please select --</option>
+                                                    {% for t in typeList %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endfor %}
+                                                {% else %}
+                                                <option value="{{ pj_type }}">{{ pj_type }}</option>
+                                                {% for t in typeList %}
+                                                    {% if not t == pj_type %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            </select>
+                                        </div>
+
+                                        {# Type of Change#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Type of Change <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_typeOfChange_err }}</p>
+                                            <select class="form-control show-tick" name="typeOfChange">
+                                                {% if not pj_typeOfChange %}
+                                                <option value="">-- Please select --</option>
+                                                {% for t in typeOfChangeList %}
+                                                    <option value="{{ t }}">{{ t }}</option>
+                                                {% endfor %}
+                                                {% else %}
+                                                <option value="{{ pj_typeOfChange }}">{{ pj_typeOfChange }}</option>
+                                                {% for t in typeOfChangeList %}
+                                                    {% if not t == pj_typeOfChange %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Accountable#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Accountable <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_accountable_err }}</p>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control no-resize"
+                                                       placeholder="Please type what you want..."
+                                                       name="accountable" value="{{ pj_accountable }}">
+                                            </div>
+                                        </div>
+
+                                        {# Area#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Area <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_area_err }}</p>
+                                            <select class="form-control show-tick" name="area">
+                                                {% if not pj_area %}
+                                                <option value="">-- Please select --</option>
+                                                {% for t in areaList %}
+                                                    <option value="{{ t }}">{{ t }}</option>
+                                                {% endfor %}
+                                                {% else %}
+                                                <option value="{{ pj_area }}">{{ pj_area }}</option>
+                                                {% for t in areaList %}
+                                                    {% if not t == pj_area %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Impact Scope#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Impact Scope <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_impactScope_err }}</p>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control no-resize"
+                                                       placeholder="Please type what you want..."
+                                                       name="impactScope" value="{{ pj_impactScope }}">
+                                            </div>
+                                        </div>
+
+                                        {# Internal Target#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Internal Target <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_internalTarget_err }}</p>
+                                            <div class="form-line">
+                                                <input type="date" class="form-control no-resize" id="datepicker"
+                                                       name="internalTarget" value="{{ pj_internalTarget }}">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# External Constraint#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">External Constraint <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_externalConstraint_err }}</p>
+                                            <div class="form-line">
+                                                <input type="date" class="form-control no-resize" id="datepicker"
+                                                       name="externalConstraint" value="{{ pj_externalConstraint }}">
+                                            </div>
+                                        </div>
+
+                                        {# External Constraint type#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">External Constraint type <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_externalConstraintType_err }}</p>
+                                            <select class="form-control show-tick" name="externalConstraintType">
+                                                {% if not pj_externalConstraintType %}
+                                                <option value="">-- Please select --</option>
+                                                {% for t in externalConstraintTypeList %}
+                                                    <option value="{{ t }}">{{ t }}</option>
+                                                {% endfor %}
+                                                {% else %}
+                                                <option value="{{ pj_externalConstraintType }}">{{ pj_externalConstraintType }}</option>
+                                                {% for t in externalConstraintTypeList %}
+                                                    {% if not t == pj_externalConstraintType %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Status#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Status <span style="color: red">*</span></h2>
+                                            <select class="form-control show-tick" name="status">
+                                                <option value="NEW">NEW</option>
+                                                {% for t in statusList %}
+                                                    {% if not t == "NEW" %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        {# Required Changes#}
+                                        <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                            <h2 class="card-inside-title">Required Changes <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_requiredChanges_err }}</p>
+                                            <div class="form-line">
+                                                    <textarea rows="2" class="form-control no-resize"
+                                                              placeholder="Please type what you want..."
+                                                              name="requiredChanges">{{ pj_requiredChanges }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {# Status and current List#}
+                                    <div class="col-md-12 col-xs-12 ">
+                                        <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                            <h2 class="card-inside-title">Status and current task list <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pj_statusCurrent_err }}</p>
+                                            <div class="form-line">
+                                                            <textarea rows="2" class="form-control no-resize"
+                                                                      placeholder="Please type what you want..."
+                                                                      name="statusCurrent">{{ pj_statusCurrent }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-12 col-xs-12 "></div>
+                                </div>
+
+                                <div class="col-md-12 col-xs-12 ">
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Jira#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Incident/BT/Jira reference</h2>
+                                            <div class="form-line">
+                                                            <textarea rows="2" class="form-control no-resize"
+                                                                      placeholder="Ex: CIB 2803"
+                                                                      name="jira"></textarea>
+                                            </div>
+
+                                        </div>
+
+                                        {# RCA#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">RCA</h2>
+                                            <div class="form-line">
+                                                            <textarea rows="2" class="form-control no-resize"
+                                                                      placeholder="Please type what you want..."
+                                                                      name="rca"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {# description#}
+                                    <div class="col-md-12 col-xs-12 ">
+                                        <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                            <h2 class="card-inside-title">Description</h2>
+                                            <div class="form-line">
+                                                            <textarea rows="2" class="form-control no-resize"
+                                                                      placeholder="Please type what you want..."
+                                                                      name="description"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Impact date#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Impact Date</h2>
+                                            <div class="form-line">
+                                                <input type="date" class="form-control no-resize"
+                                                       id="datepicker"
+                                                       name="impactDate">
+                                            </div>
+                                        </div>
+                                        {# Change Implem. Date#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Change Implem. Date</h2>
+                                            <div class="form-line">
+                                                <input type="date" class="form-control no-resize"
+                                                       id="datepicker"
+                                                       name="changeImplemDate">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Priority#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Priority</h2>
+                                            <select class="form-control show-tick" name="priority">
+                                                <option value="">-- Please select --</option>
+                                                <option value="Low">Low</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="High">High</option>
+                                                <option value="Critical">Critical</option>
+                                            </select></div>
+                                        {# CIB#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">CIB</h2>
+                                            <div class="form-line">
+                                                <input type="date" class="form-control no-resize"
+                                                       id="datepicker"
+                                                       name="cib">
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    {# Binary availability#}
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Binary availability chose #}
+                                        <script language="JavaScript">
+                                            function fnBinaryAvail(){
+                                                var e = document.getElementById("binaryAvailchose");
+                                                var binaryAvailchose = e.options[e.selectedIndex].value;
+                                                if (binaryAvailchose == 'text') {
+                                                    document.getElementById('date').style = "";
+                                                    document.getElementById('text').style = "display: none;";
+                                                } else {
+                                                    document.getElementById('text').style = "";
+                                                    document.getElementById('date').style = "display: none;";
+                                                }
+                                            }
+                                        </script>
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Binary availability Type</h2>
+                                                <select class="form-control show-tick" id="binaryAvailchose" name="binaryAvailchose" onchange="fnBinaryAvail()">
+                                                    <option value="">-- Please select type --</option>
+                                                    <option value="date">Date</option>
+                                                    <option value="text">Text</option>
+                                                </select>
+                                        </div>
+
+                                        {# Binary availability#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title" style="color: transparent">g</h2>
+                                            <div class="form-line">
+                                                 <input type="date" class="form-control no-resize" id="text" style="display: none;" id="datepicker" name="binaryAvail">
+                                                 <textarea rows="1" class="form-control no-resize" id="date" style="display: none;" placeholder="Please type what you want..." name="binaryAvail"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# Go Live Date#}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">Go Live Date</h2>
+                                            <div class="form-line">
+                                                <input type="date" class="form-control no-resize"
+                                                       id="datepicker"
+                                                       name="goLiveDate">
+                                            </div>
+                                        </div>
+                                        {# External Go live Date #}
+                                        <div class="col-sm-6 ">
+                                            <h2 class="card-inside-title">External Go live Date</h2>
+                                            <div class="form-line">
+                                                <input type="date" class="form-control no-resize"
+                                                       id="datepicker"
+                                                       name="externalGoLiveDate">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {# blockers/high bugs pre implem#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Blockers/high bugs pre implem</h2>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control no-resize"
+                                                       placeholder="Please type what you want..."
+                                                       name="blockersHighBugs">
+                                            </div>
+                                        </div>
+
+                                        {# Nb Client#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Nb. Clients incidents post deployment</h2>
+                                            <div class="form-line">
+                                                <input type="text" class="form-control no-resize"
+                                                       placeholder="Please type what you want..."
+                                                       name="nbClient">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <input type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect"
+                                       style="margin-left: 80%" value="Add Project">
+                                </input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- #END Form#  -->
+    </div>
+</section>
+<!--#Content-->
+
+{% endif %}
+{% endblock %}
+

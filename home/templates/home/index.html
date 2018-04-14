@@ -1,0 +1,119 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+{% block title %}FIS | Welcome{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_home %}
+    class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block nav_new_problem_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_project_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_change_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_check_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+
+{% block pg_admins %}
+{% if test %}
+        <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+        </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+    <!--Content-->
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="row">
+                    <a href="{% url 'home:problems' %}"><div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="info-box-3 bg-light-green hover-zoom-effect">
+                            <div class="icon">
+                                <i class="material-icons">warning</i>
+                            </div>
+                            <div class="content">
+                                <div class="number">Problems</div>
+                                <div class="text">Count: {{ problems }}</div>
+                            </div>
+                        </div>
+                    </div></a>
+                    <a href="{% url 'home:projects' %}"><div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="info-box-3 bg-blue hover-zoom-effect">
+                            <div class="icon">
+                                <i class="material-icons">dashboard</i>
+                            </div>
+                            <div class="content">
+                                <div class="number">Projects</div>
+                                <div class="text">Count: {{ projects }}</div>
+                            </div>
+                        </div>
+                    </div></a>
+                    <a href="{% url 'home:changes' %}"><div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="info-box-3 bg-light-blue hover-zoom-effect">
+                            <div class="icon">
+                                <i class="material-icons">restore</i>
+                            </div>
+                            <div class="content">
+                                <div class="number">Changes</div>
+                                <div class="text">Count: {{ changes }}</div>
+                            </div>
+                        </div>
+                    </div></a>
+                    <a href="{% url 'home:checks' %}"><div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="info-box-3 bg-cyan hover-zoom-effect">
+                            <div class="icon">
+                                <i class="material-icons">offline_pin</i>
+                            </div>
+                            <div class="content">
+                                <div class="number">Checks</div>
+                                <div class="text">Count: {{ checks }}</div>
+                            </div>
+                        </div>
+                    </div></a>
+                    {% if test %}
+                    <a href="{% url 'home:admins' %}"><div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="info-box-3 bg-pink hover-zoom-effect">
+                            <div class="icon">
+                                <i class="material-icons">perm_identity</i>
+                            </div>
+                            <div class="content">
+                                <div class="number">Admins</div>
+                                <div class="text">Count: {{ admins }}</div>
+                            </div>
+                        </div>
+                    </div></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+{% endblock %}
+<!--#Content-->

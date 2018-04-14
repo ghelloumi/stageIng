@@ -1,0 +1,628 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | Checks{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_new_problem_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_project_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_change_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_check_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+
+{% block nav_check %}
+    class="active"
+{% endblock %}
+{% block nav_list_check %}
+    class="active"
+{% endblock %}
+<!-- #Menu -->
+
+{% block pg_admins %}
+    {% if test %}
+        <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+<link href="{% static 'home/pages/checks/checks.css' %}" rel="stylesheet">
+
+    <!--Content-->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>Check List</h2><br>
+                        <div class="form-line col-md3">
+                            <input type="date" class="form-control no-resize" id="myInputType" oninput="SearchDate('yes')">
+                        </div>
+                    </div>
+                    <div class="body">
+                        <div >
+                            <div style="display:inline-block">
+                                <h5>From:</h5>
+                                <input type="date" class="form-control no-resize" id="filterDate1" oninput="SearchDate('yes')" >
+                            </div>
+                            <div style="display:inline-block">
+                                <h5>To:</h5>
+                                <input type="date" class="form-control no-resize" id="filterDate2" oninput="SearchDate('yes')" >
+                            </div>
+                            <div style="display:inline-block">
+
+                                <button type="button" class="btn btn-sm btn-primary waves-effect waves-light" onclick="filterDate()">Filter</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="table-responsive-vertical shadow-z-1" style="overflow: auto; " id="double-scroll">
+                            <div class="wmd-view">
+                                <input type="submit" class="btn btn-success waves-effect waves-light" name="btnExport" value="Export Table to Excel" id="btnExport" />
+                                <table id="table" class="table table-hover table-mc-light-blue" style="white-space: nowrap; border-style: ridge;">
+                                    <thead>
+                                    <tr>
+                                        <th style="text-align: center; vertical-align: middle">ID</th>
+                                        <th style="text-align: center; vertical-align: middle;">Category</th>
+                                        <th style="text-align: center; vertical-align: middle;">Date/Hour</th>
+                                        <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3.2rem ; ">Server/account</th>
+                                        <th style="text-align: center; vertical-align: middle;">Change ID</th>
+                                        <th style="text-align: center; vertical-align: middle;">Title</th>
+                                        <th style="text-align: center; vertical-align: middle;">Priority</th>
+                                        <th style="text-align: center; vertical-align: middle;">
+                                            Status
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+
+                                                <ul class="dropdown-menu dropdown-menu-form">
+                                                    <li><a href="#" class="drop_down_choosen_Closed">Closed</a></li>
+                                                    <li><a href="#" class="drop_down_choosen_Open">Open</a></li>
+                                                    <li><a href="#" class="drop_down_choosen_Hold">On Hold</a></li>
+                                                </ul>
+                                            </div>
+                                        </th>
+                                        <th style="text-align: center; vertical-align: middle;">Comment</th>
+                                        <th style="text-align: center; vertical-align: middle;padding-left: 1.5rem; padding-right: 1.5rem">Remove</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for a in checks %}
+                                    <tr class="pb">
+                                        <td data-title="ID" style="padding-left: 2.6rem; padding-right: 3rem ">
+                                            {% if not testR %}<a href="#" style="color: #3c3c3c"
+                                               class="popup{{ a.id }}" data-toggle="modal"
+                                               data-target="#myModal{{ a.checkId }}">{% endif %}
+                                                <span>{{ a.checkId }}</span>
+                                                {% if not testR %}<i class="small material-icons">create</i>
+                                            </a>{% endif %}
+
+                                            <!--Begin Modal Window-->
+                                            <div class="modal fade left" id="myModal{{ a.checkId }}">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h3 class="pull-left no-margin">Edit {{ a.checkId }}</h3>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    title="Close"><span
+                                                                    class="glyphicon glyphicon-remove"
+                                                                    onclick="SearchDate(da)"></span>
+                                                            </button>
+                                                        </div>
+                                                        <form class="form-horizontal" role="form" method="post"
+                                                              action="{% url 'home:change_ck'  a.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check
+                                                                        Category: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea required rows="1" class="form-control no-resize"
+                                                                                               name="ck_category{{ a.id }}">{{ a.ck_category }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check
+                                                                        Date: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                            <input required type="date" class="form-control no-resize" id="datepicker"
+                                                                                   name="ck_date{{ a.id }}" value="{{ a.ck_date }}">
+                                                                            <p>Hour</p><input type="time" required class="form-control no-resize"
+                                                                            name="ck_hour{{ a.id }}" value="{{ a.ck_hour }}">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check
+                                                                        Server/account: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea required rows="1" class="form-control no-resize"
+                                                                                               name="ck_serv_acc{{ a.id }}">{{ a.ck_serv_acc }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check
+                                                                        ChangeId:</label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <select class="form-control show-tick "
+                                                                                name="ck_changeId{{ a.id }}">
+                                                                            <option value="{{ a.ck_changeId }}">{{ a.ck_changeId }}</option>
+                                                                            {% for i in changes %}
+                                                                                {% if not i.changeId == a.ck_changeId %}
+                                                                                    <option value="{{ i.changeId }}">{{ i.changeId }}</option>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check
+                                                                        Title: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea required rows="1" class="form-control no-resize"
+                                                                                               name="ck_title{{ a.id }}">{{ a.ck_title }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check
+                                                                        Priority: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea required rows="1" class="form-control no-resize"
+                                                                                               name="ck_priority{{ a.id }}">{{ a.ck_priority }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check
+                                                                        Status: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea required rows="1" class="form-control no-resize"
+                                                                                               name="ck_status{{ a.id }}">{{ a.ck_status }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Change performed: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea rows="1" class="form-control no-resize"
+                                                                                               name="ck_change_performed{{ a.id }}">{{ a.ck_change_performed }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Check to be done: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea rows="1" class="form-control no-resize"
+                                                                                               name="ck_done{{ a.id }}">{{ a.ck_done }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Action in case of Issue: </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea rows="1" class="form-control no-resize"
+                                                                                               name="ck_action{{ a.id }}">{{ a.ck_action }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+
+                                                                <div class="form-group">
+                                                                    <label for="name" class="col-sm-3 control-label">Rollback File(s): </label>
+                                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                                        <div class="form-line">
+                                                                                     <textarea rows="1" class="form-control no-resize"
+                                                                                               name="ck_rollback{{ a.id }}">{{ a.ck_rollback }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <br>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button class="btn btn-sm btn-primary waves-effect"
+                                                                        type="submit">
+                                                                    Submit
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                (function() {
+                                                  'use strict';
+                                                  function remoteModal(idModal) {
+                                                    var vm = this;
+                                                    vm.modal = $(idModal);
+
+                                                    if (vm.modal.length == 0) {
+                                                      return false;
+                                                    }
+
+                                                    if (window.location.hash == idModal) {
+                                                      openModal();
+                                                    }
+
+                                                    var services = {
+                                                      open: openModal,
+                                                      close: closeModal
+                                                    };
+
+                                                    return services;
+
+                                                    // method to open modal
+                                                    function openModal() {
+                                                      vm.modal.modal('show');
+                                                    }
+
+                                                    // method to close modal
+                                                    function closeModal() {
+                                                      vm.modal.modal('hide');
+                                                    }
+                                                  }
+                                                  Window.prototype.remoteModal = remoteModal;
+                                                })();
+
+                                                $(function() {
+                                                    $('#myModal{{ a.checkId }}').on('shown.bs.modal', function(){
+                                                    SearchDate('all')
+                                                    });
+
+                                                    window.remoteModal('#myModal{{ a.checkId }}');
+                                                    $('#myModal{{ a.checkId }}').on('hide.bs.modal', function(){
+                                                    d = new Date()
+                                                    dt = '' + d.getUTCDate();
+                                                    mn = d.getUTCMonth();
+                                                    mn++;
+                                                    mn = '' + mn
+                                                    yy = '' + d.getUTCFullYear();
+                                                    if (dt.length == 1)
+                                                        dt = '0' + dt
+                                                    if (mn.length == 1)
+                                                        mn = '0' + mn
+                                                    da = yy + '-' + mn + '-' + dt
+                                                    document.getElementById('myInputType').value = da;
+                                                    SearchDate(da)
+                                                    });
+                                                });
+
+
+                                            </script>
+                                        </td>
+                                        <td data-title="Category">{{ a.ck_category }}</td>
+                                        <td data-title="Date/Hour" style=" padding-left: 2.6rem; padding-right: 3.2rem ;">
+                                        {%  if not a.ck_category == 'Recurrent Check' %}
+                                            {{ a.ck_date }} / {{ a.ck_hour }}
+                                        {% else%}
+                                             {%  if a.ck_date_no_end %}
+                                                 {{ a.ck_date_no_end }} / {{ a.ck_hour_no_end }}
+                                             {%  else %}
+                                                 Month: '{{ a.ck_date_no_end_month }}' - day: '{{ a.ck_date_no_end_day }}' / {{ a.ck_hour_no_end }}
+                                             {% endif %}
+                                        {% endif %}
+                                        </td>
+                                        <td data-title="Server/account" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ck_serv_acc }}</td>
+                                        <td data-title="Change ID">{{ a.ck_changeId }}</td>
+                                        <td data-title="Title" style=" padding-left: 2.6rem; padding-right: 3.2rem ;">{{ a.ck_title }}</td>
+                                        <td data-title="Priority">{{ a.ck_priority }}</td>
+                                        <td data-title="Status" style=" padding-left: 2.6rem; padding-right: 3.2rem ;">
+
+                                            {% if not testR %}<a href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal"
+                                               data-target="#myModalchangeStatus{{ a.id }}">{% endif %}
+                                                <span>{{ a.ck_status }}</span>
+                                            {% if not testR %}</a>{% endif %}
+
+                                            <!--Begin Modal Window-->
+                                            <div class="modal fade left" id="myModalchangeStatus{{ a.id }}">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h3 class="pull-left no-margin">Change Status {{ a.checkId }}</h3>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    title="Close"><span
+                                                                    class="glyphicon glyphicon-remove"></span>
+                                                            </button>
+                                                        </div>
+                                                        <form class="form-horizontal" role="form" method="post"
+                                                              action="{% url 'home:change_ck_status' a.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                 <select class="form-control show-tick" name="ck_status{{ a.id }}" id="ck_status{{ a.id }}">
+                                                                    <option value="Open" selected>Open</option>
+                                                                    <option value="Closed">Closed</option>
+                                                                    <option value="On Hold">On Hold</option>
+                                                                 </select>
+                                                                <br>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button class="btn btn-sm btn-primary waves-effect" type="submit">
+                                                                    Submit
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </td>
+                                        <td data-title="Comment">
+                                            <a href="#" style="color: #3c3c3c" data-toggle="modal"
+                                               data-target="#myModal{{ a.id }}comment"><i
+                                                    class="material-icons">assignment</i>
+                                            </a>
+                                            <!--Begin Modal Window-->
+                                            <div class="modal fade left" id="myModal{{ a.id }}comment">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h3 class="pull-left no-margin">Comments
+                                                                : {{ a.problemId }}</h3>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    title="Close"><span
+                                                                    class="glyphicon glyphicon-remove"></span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body" style="overflow-x:auto">
+                                                            <br/>
+                                                            <style type="text/css">
+                                                                .testTable {
+                                                                    display: table;
+                                                                    margin: 0px;
+                                                                    padding: 0px;
+                                                                }
+
+                                                                .testRow {
+                                                                    display: table-row;
+                                                                }
+
+                                                                .testRow > span {
+                                                                    list-style: none;
+                                                                    display: table-cell;
+                                                                    border: 1px solid #000;
+                                                                    padding: 2px 6px;
+                                                                }
+
+                                                                .testHeader {
+                                                                    display: table-header-group;
+                                                                    /*position: absolute;*/
+                                                                }
+
+                                                                .testHeader span {
+                                                                    background-color: #ccc;
+                                                                }
+
+                                                                .testBody {
+                                                                    display: table-row-group;
+                                                                }
+                                                            </style>
+
+                                                            <ul class="testTable">
+                                                                <div class="testHeader">
+                                                                    <li class="testRow">
+                                                                        <span>Date</span>
+                                                                        <span>Name</span>
+                                                                        <span>Comment</span>
+                                                                    </li>
+                                                                </div>
+                                                                <div class="testBody">
+                                                                    {% for c in checkComments %}
+                                                                        {% if a.id == c.check_id %}
+                                                                        <li class="testRow">
+                                                                            <span><p align="left">{{ c.date }}</p></span>
+                                                                            <span><p align="left">{{ c.name }}</p></span>
+                                                                            <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">{{ c.text }}</p></span>
+                                                                        </li>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </ul>
+                                                        </div>
+
+                                                        {% if not testR %}
+                                                        <div class="modal-footer">
+                                                            <form class="form-horizontal" name="add_comment_field_form{{ a.id }}" role="form" method="post" action="{% url 'home:add_comment_check'  a.id %}">
+                                                                {% csrf_token %}
+                                                                <div class="form-line">
+                                                                    <textarea rows="1" class="form-control no-resize"
+                                                                              placeholder="Please type what you want..."
+                                                                              name="add_comment_field{{ a.id }}"></textarea>
+                                                                </div>
+
+                                                                <button type="submit" class="btn btn-primary waves-effect" style='background-color:lightseagreen;'>
+                                                                    <i class="material-icons" style='color:white;'>add</i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td data-title="Remove" style="padding-left: 1.5rem; padding-right: 1.5rem">
+                                            {% if test %}
+                                            <form name="supp_ck{{ a.id }}" id="supp_ck{{ a.id }}" action="{% url 'home:supp_ck' a.id %}" method="post">{% csrf_token %}
+                                                <a href="#" style="color: crimson" onclick="showConfirmMessage{{ a.id }}()">
+                                                    <i class="material-icons">remove_circle</i>
+                                                </a>
+                                            </form>
+                                            <script>
+                                            function showConfirmMessage{{ a.id }}() {
+                                                swal({
+                                                    title: "Are you sure?",
+                                                    text: "You will not be able to recover {{ a.changeId }}!",
+                                                    type: "warning",
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: "#DD6B55",
+                                                    confirmButtonText: "Yes, delete it!",
+                                                    closeOnConfirm: false
+                                                }, function () {
+                                                    swal("Deleted!", "{{ a.checkId }} has been deleted.", "success");
+                                                    document.getElementById('supp_ck{{ a.id }}').submit();
+                                                });
+                                            }
+                                        </script>
+                                            {% else %}
+                                                Must be Admin or owner
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <br>
+                <br>
+
+            </div>
+        </div>
+
+        <div style="visibility: hidden;">
+            <table id="tableToExport" class="table table-hover table-mc-light-blue" style="white-space: nowrap; border-style: ridge;">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; vertical-align: middle">ID</th>
+                        <th style="text-align: center; vertical-align: middle;">Category</th>
+                        <th style="text-align: center; vertical-align: middle;">Date/Hour</th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3.2rem ; ">Server/account</th>
+                        <th style="text-align: center; vertical-align: middle;">Change ID</th>
+                        <th style="text-align: center; vertical-align: middle;">Title</th>
+                        <th style="text-align: center; vertical-align: middle;">Priority</th>
+                        <th style="text-align: center; vertical-align: middle;">Status</th>
+                        <th style="text-align: center; vertical-align: middle;">Comment</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for a in checks %}
+                    <tr class="pb">
+                        <td data-title="ID" style="padding-left: 2.6rem; padding-right: 3rem "><span>{{ a.checkId }}</span></td>
+                        <td data-title="Category">{{ a.ck_category }}</td>
+                        <td data-title="Date/Hour" style=" padding-left: 2.6rem; padding-right: 3.2rem ;">{{ a.ck_date }} / {{ a.ck_hour }}</td>
+                        <td data-title="Server/account" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.ck_serv_acc }}</td>
+                        <td data-title="Change ID">{{ a.ck_changeId }}</td>
+                        <td data-title="Title" style=" padding-left: 2.6rem; padding-right: 3.2rem ;">{{ a.ck_title }}</td>
+                        <td data-title="Priority">{{ a.ck_priority }}</td>
+                        <td data-title="Status" style=" padding-left: 2.6rem; padding-right: 3.2rem ;"><span>{{ a.ck_status }}</span></td>
+                        <td data-title="Comment">
+                             {% for i in checkComments %}
+                                {% if i.check_id == a.id %}
+                                    {{ i.text }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+        </div>
+        <script type="text/javascript">
+        $(function () {
+            $('[id*=btnExport]').on('click', function () {
+                ExportToExcel('tableToExport');
+                location.reload();
+            });
+        });
+        function ExportToExcel(Id) {
+            var tab_text = "<table border='2px'><tr>";
+            var textRange;
+            var j = 0;
+            tab = document.getElementById(Id);
+            var headerRow = $('[id*=tableToExport] tr:first');
+            tab_text += headerRow.html() + '</tr><tr>';
+            var rows = $('[id*=tableToExport] tr:not(:has(th))');
+            for (j = 0; j < rows.length; j++) {
+                if ($(rows[j]).css('display') != 'none') {
+                    tab_text = tab_text + rows[j].innerHTML + "</tr>";
+                }
+            }
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, ""); //remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf("MSIE ");
+            if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+            {
+                txtArea1.document.open("txt/html", "replace");
+                txtArea1.document.write(tab_text);
+                txtArea1.document.close();
+                txtArea1.focus();
+                sa = txtArea1.document.execCommand("SaveAs", true, Id + ".xls");
+            }
+            else {                 //other browser not tested on IE 11
+                sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+            }
+            return (sa);
+        }
+    </script>
+
+    </section>
+    <!--#Content-->
+
+<script src="{% static 'home/pages/checks/checks.js' %}"></script>
+{% endif %}
+{% endblock %}
+

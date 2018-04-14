@@ -1,0 +1,479 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | Problems{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_new_problem_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_project_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_change_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+{% block nav_new_check_read_only %}
+{% if testR %}
+    style ="display: none;"
+{% endif %}
+{% endblock %}
+
+{% block nav_problems %}
+class="active"
+{% endblock %}
+{% block nav_list_problems %}
+class="active"
+{% endblock %}
+<!-- #Menu -->
+
+
+{% block pg_admins %}
+{% if test %}
+    <a href="{% url 'home:admins' %}">
+        <i class="material-icons">perm_identity</i>
+        <span>Administration</span>
+    </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+<!--Content-->
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+<link href="{% static 'home/pages/problems/problems.css' %}" rel="stylesheet">
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="table-responsive-vertical shadow-z-1 " style="overflow: auto; " id="double-scroll">
+            <div class="wmd-view">
+                <input type="submit" class="btn btn-success waves-effect waves-light" name="btnExport" value="Export Table to Excel" id="btnExport" />
+                <table id="table" class="table table-hover table-mc-light-blue" style="white-space: nowrap; border-style: ridge;">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center; vertical-align: middle; ">
+                            <span style="margin-right: 1rem">Team</span>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-form" id="drop_down_choosen">
+                                    <li><a href="#" class="drop_down_choosen_MM">MarketMap</a></li>
+                                    <li><a href="#" class="drop_down_choosen_SGN">SGN</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#" class="drop_down_choosen_All">All</a></li>
+                                </ul>
+                            </div>
+                        </th>
+                        <th style="text-align: center; vertical-align: middle; ">ID</th>
+                        <th style="text-align: center; vertical-align: middle; ">Date<span style="color: transparent">h</span>
+                            <div class="btn-group ">
+                                <button type="button" class="btn btn-default btn-xs decroi">
+                                    <span class="caret"></span>
+                                </button>
+                            </div>
+                            <div class="btn-group dropup">
+                                <button type="button" class="btn btn-default btn-xs accroi">
+                                    <span class="caret"></span>
+                                </button>
+                            </div>
+                        </th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3.2rem">
+                            Problem description
+                        </th>
+                        <th style="text-align: center; vertical-align: middle;">Priority<span style="color: transparent">h</span>
+                            <div class="btn-group ">
+                                <button type="button" class="btn btn-default btn-xs decroiPrio">
+                                    <span class="caret"></span>
+                                </button>
+                            </div>
+                            <div class="btn-group dropup">
+                                <button type="button" class="btn btn-default btn-xs accroiPrio">
+                                    <span class="caret"></span>
+                                </button>
+                            </div>
+                        </th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 3rem; padding-right: 3rem">
+                            Importance
+                        </th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 2.6rem">
+                            Urgency Risk
+                        </th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3.2rem">
+                            <SPAN style="margin-right: 1rem">Status</SPAN>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-form">
+                                    <li><input type="text" id="myInputStat" onkeyup="myFunctionStatus()"
+                                               placeholder="Search for Statues.."></li>
+                                </ul>
+                            </div>
+                        </th>
+                        <th style="text-align: center; vertical-align: middle;">Incident/BT/JIRA</th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 1.7rem; padding-right: 1.5rem">
+                            <span style="margin-right: 1rem">Owner</span>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-form">
+                                    <li><a href="#" class="drop_down_choosen_title1">A -> Z</a></li>
+                                    <li><a href="#" class="drop_down_choosen_title2">Z -> A</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><input type="text" id="myInputOwner" onkeyup="myFunctionOwner()" placeholder="Search for names.."></li>
+                                </ul>
+                            </div>
+                        </th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.5rem; padding-right: 1.5rem">Comment</th>
+                        {% if privileges == 'suser' %}
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.5rem; padding-right: 1.5rem">Remove</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for a in problems %}
+                    <tr class="pb" id="_appendHere">
+                        <td data-title="Type" style="padding-left: 2rem; padding-right: 2rem;">{{ a.team }}</td>
+                        <td data-title="ID" style="padding-left: 2.3rem; padding-right: 2.3rem">
+                            {% if not testR %}
+                            <a href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal"
+                               data-target="#myModal{{ a.id }}">
+                                {% endif %}
+                                <span>{{ a.problemId }}</span>
+                            {% if not testR %}
+                                <i class="small material-icons">create</i>
+                            </a>
+                            {% endif %}
+
+
+                            <!--Begin Modal Window-->
+                            <div class="modal fade left" id="myModal{{ a.id }}">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="pull-left no-margin">Edit {{ a.problemId }}</h3>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    title="Close"><span
+                                                    class="glyphicon glyphicon-remove"></span>
+                                            </button>
+                                        </div>
+                                        <form class="form-horizontal" role="form" method="post"
+                                              action="{% url 'home:change_pb'  a.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label for="name" class="col-sm-3 control-label">Problem
+                                                        Description: </label>
+                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                        <div class="form-line">
+                                                                     <textarea rows="2" class="form-control no-resize"
+                                                                               name="problemDesc{{ a.id }}">{{ a.problemDesc }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+                                                <div class="form-group">
+                                                    <label for="name" class="col-sm-3 control-label">Problem
+                                                        Statue:</label>
+                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                        <select class="form-control show-tick "
+                                                                name="pb_statue{{ a.id }}">
+
+                                                            <option value="{{ a.status }}">{{ a.status }}</option>
+                                                            {% for i in status %}
+                                                            {% if not i == a.status %}
+                                                            <option value="{{ i }}">{{ i }}</option>
+                                                            {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+                                                <div class="form-group">
+                                                    <label for="name" class="col-sm-3 control-label">Problem
+                                                        Importance:</label>
+                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                        <select class="form-control show-tick"
+                                                                name="pb_imp{{ a.id }}">
+
+                                                            <option value="{{ a.importance }}">{{ a.importance }}
+                                                            </option>
+                                                            {% for i in t %}
+                                                            {% if not i == a.importance|add:"0" %}
+                                                            <option value="{{ i }}">{{ i }}</option>
+                                                            {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+                                                <div class="form-group">
+                                                    <label for="name" class="col-sm-3 control-label">Problem
+                                                        Urgency:</label>
+                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                        <select class="form-control show-tick drop-up"
+                                                                name="pb_urgency{{ a.id }}">
+                                                            <option value="{{ a.urgency }}">{{ a.urgency }}</option>
+                                                            {% for i in t %}
+                                                            {% if not i == a.urgency|add:"0" %}
+                                                            <option value="{{ i }}">{{ i }}</option>
+                                                            {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+                                                <div class="form-group">
+                                                    <label for="name" class="col-sm-3 control-label">Problem
+                                                        Incident/BT/JIRA :</label>
+                                                    <div class="col-sm-9" style="padding-left:15%">
+                                                        <div class="form-line">
+                                                                     <textarea rows="2" class="form-control no-resize"
+                                                                               name="pb_Jira{{ a.id }}">{{ a.jira }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-sm btn-primary waves-effect"
+                                                        type="submit">
+                                                    Submit
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-title="Date">{{ a.date }}</td>
+                        <td data-title="Problem description"
+                            style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.problemDesc }}
+                        </td>
+                        <td data-title="Priority"
+                            style="background-color: {% if a.priority|add:'0' > 29 %}red{% elif a.priority|add:'0' > 23 %}orange{% else %}yellow{% endif %}"
+                            id="priority_color{{ a.id }}">
+                            <div id="priority_text{{ a.id }}">{{ a.priority }}</div>
+                        </td>
+                        <td data-title="Important Impact"
+                            style="padding-left: 2.5rem; padding-right: 2.5rem;">
+                            {{ a.importance }}
+                        </td>
+                        <td data-title="Urgence Risk of reoccurence"
+                            style="padding-left: 2.3rem; padding-right: 2.3rem">
+                            {{ a.urgency }}
+                        </td>
+                        <td data-title="Status">{{ a.status }}</td>
+                        <td data-title="Incident/BT/JIRA">
+                            <div id="jira{{ a.id }}" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.jira }}</div>
+                        </td>
+                        <td data-title="Problem owner">
+                            {% if not testR %}
+                            <a href="#" class="popup{{ a.id }}" style="color: #3c3c3c" data-toggle="modal"
+                                               data-target="#myModalChangeOwner{{ a.id }}">
+                                {% endif %}
+                                <span>{{ a.problemOwner }}</span>
+                                {% if not testR %}
+                            </a>
+                            {% endif %}
+
+                            <!--Begin Modal Window-->
+                            <div class="modal fade left" id="myModalChangeOwner{{ a.id }}">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="pull-left no-margin">Change {{ a.problemId }} Owner</h3>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    title="Close"><span
+                                                    class="glyphicon glyphicon-remove"></span>
+                                            </button>
+                                        </div>
+                                       <form class="form-horizontal" role="form" method="post"
+                                  action="{% url 'home:change_pb_owner'  a.id %}" id="changePbOwner{{ a.id }}">
+                                {% csrf_token %}
+                                            <div class="modal-body">
+                                                 <select class="form-control show-tick" name="changePbOwnerSelect{{ a.id }}">
+                                                    <option value="{{ a.problemOwner }}">{{ a.problemOwner }}</option>
+                                                    {% for s in admins %}
+                                                        {% if not s == a.problemOwner %}
+                                                            <option value="{{ s }}">{{ s }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+
+                                                <br>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-sm btn-primary waves-effect" type="submit">
+                                                    Submit
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-title="Comment">
+                            <form name="add_pb_comment{{ a.id }}" id="add_pb_comment{{ a.id }}" action="{% url 'home:comment_list'%}" method="post">
+                                                {% csrf_token %}
+                                <input type="hidden" name="pbIdC" value="{{ a.id }}">
+                                <a href="#" style="color: #3c3c3c"><i class="material-icons"
+                            onclick="document.getElementById('add_pb_comment{{ a.id }}').submit()">assignment</i></a>
+                            </form>
+                        </td>
+                        {% if privileges == 'suser' %}
+                        <td data-title="Remove">
+                            <form name="supp_pb{{ a.id }}" id="supp_pb{{ a.id }}" action="{% url 'home:supp_pb' a.id %}" method="post">{% csrf_token %}
+                                <a href="#" style="color: crimson" onclick="showConfirmMessage{{ a.id }}()">
+                                    <i class="material-icons">remove_circle</i>
+                                </a>
+                            </form>
+                        </td>
+                        <script>
+                            function showConfirmMessage{{ a.id }}() {
+                                swal({
+                                    title: "Are you sure?",
+                                    text: "You will not be able to recover {{ a.problemId }}!",
+                                    type: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#DD6B55",
+                                    confirmButtonText: "Yes, delete it!",
+                                    closeOnConfirm: false
+                                }, function () {
+                                    swal("Deleted!", "{{ a.problemId }} has been deleted.", "success");
+                                    document.getElementById('supp_pb{{ a.id }}').submit();
+                                });
+                            }
+                        </script>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+                <br><br><br>
+            </div>
+        </div>
+    </div>
+
+    <div style="visibility: hidden;">
+        <table id="tableToExport" class="table table-hover table-mc-light-blue" style="white-space: nowrap; border-style: ridge;">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center; vertical-align: middle; "><span style="margin-right: 1rem">Team</span></th>
+                        <th style="text-align: center; vertical-align: middle; ">ID</th>
+                        <th style="text-align: center; vertical-align: middle; ">Date</th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3.2rem">Problem description</th>
+                        <th style="text-align: center; vertical-align: middle;">Priority</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 3rem; padding-right: 3rem">Importance</th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.6rem; padding-right: 2.6rem">Urgency Risk</th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3.2rem"><SPAN style="margin-right: 1rem">Status</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle;">Incident/BT/JIRA</th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 1.7rem; padding-right: 1.5rem"><span style="margin-right: 1rem">Owner</span></th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 1.5rem; padding-right: 1.5rem">Comment</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for a in problems %}
+                    <tr class="pb" >
+                        <td data-title="Type" style="padding-left: 2rem; padding-right: 2rem;">{{ a.team }}</td>
+                        <td data-title="ID" style="padding-left: 2.3rem; padding-right: 2.3rem"><span>{{ a.problemId }}</span></td>
+                        <td data-title="Date">{{ a.date }}</td>
+                        <td data-title="Problem description" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.problemDesc }}</td>
+                        <td data-title="Priority" style="background-color: {% if a.priority|add:'0' > 29 %}red{% elif a.priority|add:'0' > 23 %}orange{% else %}yellow{% endif %}">{{ a.priority }}</td>
+                        <td data-title="Important Impact" style="padding-left: 2.5rem; padding-right: 2.5rem;">{{ a.importance }}</td>
+                        <td data-title="Urgence Risk of reoccurence" style="padding-left: 2.3rem; padding-right: 2.3rem">{{ a.urgency }}</td>
+                        <td data-title="Status">{{ a.status }}</td>
+                        <td data-title="Incident/BT/JIRA">{{ a.jira }}</td>
+                        <td data-title="Problem owner"><span>{{ a.problemOwner }}</span></td>
+                        <td data-title="Comment">
+                            {% for i in comments %}
+                                {% if i.problem_id == a.id %}
+                                    {{ i.text }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            $('[id*=btnExport]').on('click', function () {
+                ExportToExcel('tableToExport');
+                location.reload();
+            });
+        });
+        function ExportToExcel(Id) {
+            var tab_text = "<table border='2px'><tr>";
+            var textRange;
+            var j = 0;
+            tab = document.getElementById(Id);
+            var headerRow = $('[id*=tableToExport] tr:first');
+            tab_text += headerRow.html() + '</tr><tr>';
+            var rows = $('[id*=tableToExport] tr:not(:has(th))');
+            for (j = 0; j < rows.length; j++) {
+                if ($(rows[j]).css('display') != 'none') {
+                    tab_text = tab_text + rows[j].innerHTML + "</tr>";
+                }
+            }
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, ""); //remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf("MSIE ");
+            if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+            {
+                txtArea1.document.open("txt/html", "replace");
+                txtArea1.document.write(tab_text);
+                txtArea1.document.close();
+                txtArea1.focus();
+                sa = txtArea1.document.execCommand("SaveAs", true, Id + ".xls");
+            }
+            else {                 //other browser not tested on IE 11
+                sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+            }
+            return (sa);
+        }
+    </script>
+
+</section>
+
+<script src="{% static 'home/pages/problems/problems.js' %}"></script>
+{% endif %}
+<!--#Content-->
+{% endblock %}
+

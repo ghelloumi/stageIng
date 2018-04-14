@@ -1,0 +1,1253 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}Website Title | Projects{% endblock %}
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_projects %}
+    class="active"
+{% endblock %}
+{% block nav_list_projects %}
+    class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block nav_new_problem_read_only %}
+    {% if testR %}
+        style ="display: none;"
+    {% endif %}
+{% endblock %}
+{% block nav_new_project_read_only %}
+    {% if testR %}
+        style ="display: none;"
+    {% endif %}
+{% endblock %}
+{% block nav_new_change_read_only %}
+    {% if testR %}
+        style ="display: none;"
+    {% endif %}
+{% endblock %}
+{% block nav_new_check_read_only %}
+    {% if testR %}
+        style ="display: none;"
+    {% endif %}
+{% endblock %}
+
+{% block pg_admins %}
+    {% if test %}
+        <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {% if not testU %}
+        <meta http-equiv="refresh" content="url={% url 'home:notfound' %}">
+    {% else %}
+        <link href="{% static 'home/pages/projects/projects.css' %}" rel="stylesheet">
+
+        <!--Content-->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Project List</h2><br>
+                            <input id="all_show" type="button" class="btn btn-default btn-lg active waves-effect"
+                                   value="All"/>
+                            <input id="comitee" type="button" class="btn btn-default btn-lg active waves-effect"
+                                   value="The project committee"/>
+                            <input id="sgn_changes" type="button" class="btn btn-default btn-lg active waves-effect"
+                                   value="Activity report"/><br><br>
+
+                            {% if test %}
+                                <a href="#" class="popup{{ a.id }}" data-toggle="modal"
+                                   data-target="#myModalChangeDropDownMenu">
+                                    <span style="color: crimson"><i class="small material-icons">create</i>Change Drop down menus options<span
+                                            style="color: darkgray"> (reserved for Admins)</span></span>
+                                </a>
+
+                                <!--Begin Modal Window-->
+                                <div class="modal fade left" id="myModalChangeDropDownMenu">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h3 class="pull-left no-margin">
+                                                    Change Drop down menus options
+                                                    <form class="form-horizontal" role="form" method="post"
+                                                          action="{% url 'home:change_projects_lists_default' %}"
+                                                          id="defaultLists">
+                                                        {% csrf_token %}
+                                                        <br>
+                                                        <button class="btn btn-sm btn-danger waves-effect" type="submit"
+                                                                onclick="fnclick()">To default
+                                                        </button>
+                                                    </form>
+                                                </h3>
+
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        title="Close"><span
+                                                        class="glyphicon glyphicon-remove"></span>
+                                                </button>
+                                            </div>
+
+                                            <form class="form-horizontal" role="form" method="post"
+                                                  action="{% url 'home:change_projects_lists' %}"
+                                                  id="changeLists">
+                                                {% csrf_token %}
+                                                <div class="modal-body" id="change_lists_content">
+
+                                                    <h4>Type</h4>
+                                                    <input type="text" name="typeList" value="{{ lists.typeList }}"
+                                                           data-role="tagsinput">
+                                                    <h4>Type Of Change</h4>
+                                                    <input type="text" name="typeOfChangeList"
+                                                           value="{{ lists.typeOfChangeList }}" data-role="tagsinput">
+                                                    <h4>Area</h4>
+                                                    <input type="text" name="areaList" value="{{ lists.areaList }}"
+                                                           data-role="tagsinput">
+                                                    <h4>External constraint type</h4>
+                                                    <input type="text" name="externalConstraintTypeList"
+                                                           value="{{ lists.externalConstraintTypeList }}"
+                                                           data-role="tagsinput">
+                                                    <h4>Status</h4>
+                                                    <input type="text" name="statusList" value="{{ lists.statusList }}"
+                                                           data-role="tagsinput">
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button class="btn btn-sm btn-primary waves-effect" type="submit"
+                                                            onclick="fnclick2()">Submit
+                                                    </button>
+                                                </div>
+
+                                            </form>
+                                            <script>
+                                                $('#defaultLists').submit(function (e) {
+                                                    e.preventDefault();
+                                                    url = $(this).attr('action')
+                                                    data = $(this).serialize();
+                                                    $.post(url, data, function (response) {
+                                                        console.log('submited')
+                                                    })
+                                                })
+
+
+                                                function fnclick() {
+                                                    $.ajax({
+                                                        url: 'apply_changes',
+                                                        success: function (data) {
+                                                            $('#change_lists_content').html(data);
+                                                            console.log('done')
+                                                        }
+                                                    });
+                                                    swal("Done!", "Data Set to default!", "success");
+                                                }
+
+                                                function fnclick2() {
+                                                    swal("Submitted!", "Data Saved to the data base!", "success");
+                                                }
+
+                                            </script>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="body">
+                            <div class="table-responsive-vertical shadow-z-1" style="overflow: auto; "
+                                 id="double-scroll">
+                                <div class="wmd-view">
+                                    <input type="submit" class="btn btn-success waves-effect waves-light"
+                                           name="btnExport" value="Export Table to Excel" id="btnExport"/>
+                                    <table id="table" class="table table-hover table-mc-light-blue"
+                                           style="white-space: nowrap; border-style: ridge;">
+                                        <thead>
+                                        <tr>
+                                            <th style="text-align: center; vertical-align: middle;  padding-left: 2.6rem; padding-right: 2.4rem">
+                                                <span style="margin-right: 1rem">Team</span>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><a href="#" class="drop_down_choosen_MM">MarketMap</a></li>
+                                                        <li><a href="#" class="drop_down_choosen_SGN">SGN</a></li>
+                                                        <li role="separator" class="divider"></li>
+                                                        <li><a href="#" class="drop_down_choosen_All">All</a></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3rem ">
+                                                <span>ID</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 1rem">
+                                                <span>Detection Date</span>
+                                                <span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button" class="btn btn-default btn-xs"
+                                                            onclick="fnTriDown(2)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button" class="btn btn-default btn-xs"
+                                                            onclick="fnTriUp(2)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 7rem; padding-right: 7rem">
+                                                <span>Project description</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-right: 1rem; padding-left: 2rem">
+                                                <span style="margin-right: 1rem">SGN team</span>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><a href="#" class="drop_down_choosen_Ops">Ops</a></li>
+                                                        <li><a href="#" class="drop_down_choosen_SDM">SDM</a></li>
+                                                        <li role="separator" class="divider"></li>
+                                                        <li><a href="#" class="drop_down_choosen_SGN_All">All</a></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 3rem; padding-right: 3rem">
+                                                <SPAN style="margin-right: 1rem">Type</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><input type="text" id="myInputType"
+                                                                   onkeyup="myFunctionSearch(5,'Type')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2.7rem; padding-right: 2.7rem">
+                                                <SPAN style="margin-right: 1rem">Type of change</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><input type="text" id="myInputTypeCh"
+                                                                   onkeyup="myFunctionSearch(6,'TypeCh')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 2rem; padding-right: 2rem">
+                                                <SPAN style="margin-right: 1rem">Accountable</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form" id="drop_down_choosen">
+                                                        <li><input type="text" id="myInputAccountable"
+                                                                   onkeyup="myFunctionSearch(7,'Accountable')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 3.2rem; padding-right: 3.2rem">
+                                                <SPAN style="margin-right: 1rem">Area</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><input type="text" id="myInputArea"
+                                                                   onkeyup="myFunctionSearch(8,'Area')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 3.2rem; padding-right: 3.2rem">
+                                                <SPAN style="margin-right: 1rem">Impact Scope</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><input type="text" id="myInputImpactScope"
+                                                                   onkeyup="myFunctionSearch(9,'ImpactScope')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 1.2rem; padding-right: 1.3rem">
+                                                <span>Internal Target</span><span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(10)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(10)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 2.1rem">
+                                                <span>External constraint</span>
+                                                <span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(11)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(11)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 2.1rem">
+                                                <SPAN style="margin-right: 1rem">External constraint type</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><input type="text" id="myInputExternalconstrainttype"
+                                                                   onkeyup="myFunctionSearch(12,'Externalconstrainttype')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 5rem; padding-right: 5rem">
+                                                <SPAN style="margin-right: 1rem">Status</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form">
+                                                        <li><input type="text" id="myInputStatus"
+                                                                   onkeyup="myFunctionSearch(13,'Status')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 7rem; padding-right: 7rem">
+                                                <span>Required Changes</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 5rem; padding-right: 5rem">
+                                                <span>Status and current task list</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 1.2rem; padding-right: 1.3rem">
+                                                <SPAN style="margin-right: 1rem">Incident/BT/Jira reference</SPAN>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-form" id="drop_down_choosen">
+                                                        <li><input type="text" id="myInputJira"
+                                                                   onkeyup="myFunctionSearch(16,'Jira')"
+                                                                   placeholder="Search"></li>
+                                                    </ul>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 8rem; padding-right: 8rem">
+                                                <span>RCA</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 8rem; padding-right: 8rem">
+                                                <span>Description</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 1.2rem; padding-right: 1.3rem">
+                                                <span>Impact Date</span>
+                                                <span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(19)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(19)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 2rem">
+                                                <span>Change Implem. Date</span>
+                                                <span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(20)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(20)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                                                <span>Priority</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 4rem; padding-right: 4rem">
+                                                <span>CIB</span>
+                                                <span
+                                                        style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(22)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(22)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                                                <span>Binary Availability</span>
+                                                <span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(23)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(23)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                                                <span>Go live</span>
+                                                <span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(24)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(24)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                                                <span>External Go Live</span>
+                                                <span style="color: transparent">h</span>
+                                                <div class="btn-group ">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs decroiInternalTarget"
+                                                            onclick="fnTriDown(25)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group dropup">
+                                                    <button type="button"
+                                                            class="btn btn-default btn-xs accroiInternalTarget"
+                                                            onclick="fnTriUp(25)">
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 4rem; padding-right: 4rem">
+                                                <span>Blockers/high bugs pre implem</span></th>
+                                            <th style="text-align: center; vertical-align: middle; padding-left: 3rem; padding-right: 3rem">
+                                                <span>Post Impl. Incident</span></th>
+                                            <th style="text-align: center; vertical-align: middle;padding-left: 1.5rem; padding-right: 1.5rem">
+                                                <span>Remove</span></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for a in projects %}
+                                            <tr class="pb">
+                                                <td data-title="Team">{{ a.pj_team }}</td>
+                                                <td data-title="ID">
+                                                    {% if not testR %}
+                                                        <a href="#" class="popup{{ a.id }}" style="color: #3c3c3c"
+                                                           data-toggle="modal"
+                                                           data-target="#myModal{{ a.id }}">
+                                                    {% endif %}
+                                                    <span>{{ a.projectId }}</span>
+                                                    {% if not testR %} <i class="small material-icons">create</i>
+                                                        </a>
+                                                    {% endif %}
+
+                                                    <!--Begin Modal Window-->
+                                                    <div class="modal fade left" id="myModal{{ a.id }}">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h3 class="pull-left no-margin">
+                                                                        Edit {{ a.problemId }}</h3>
+                                                                    <button type="button" class="close"
+                                                                            data-dismiss="modal"
+                                                                            title="Close"><span
+                                                                            class="glyphicon glyphicon-remove"></span>
+                                                                    </button>
+                                                                </div>
+                                                                <form class="form-horizontal" role="form" method="post"
+                                                                      action="{% url 'home:change_pj'  a.id %}">
+
+                                                                    {% csrf_token %}
+                                                                    <div class="modal-body">
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Project
+                                                                                description: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="4"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_projectDescription{{ a.id }}">{{ a.pj_projectDescription }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Type: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <select class="form-control show-tick "
+                                                                                            name="pj_type{{ a.id }}">
+
+                                                                                        <option value="{{ a.pj_type }}">{{ a.pj_type }}</option>
+                                                                                        {% for i in typeList %}
+                                                                                            {% if not i == a.pj_type %}
+                                                                                                <option value="{{ i }}">{{ i }}</option>
+                                                                                            {% endif %}
+                                                                                        {% endfor %}
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Type of
+                                                                                change: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <select class="form-control show-tick "
+                                                                                            name="pj_typeOfChange{{ a.id }}">
+
+                                                                                        <option value="{{ a.pj_typeOfChange }}">{{ a.pj_typeOfChange }}</option>
+                                                                                        {% for i in typeOfChangeList %}
+                                                                                            {% if not i == a.pj_typeOfChange %}
+                                                                                                <option value="{{ i }}">{{ i }}</option>
+                                                                                            {% endif %}
+                                                                                        {% endfor %}
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Accountable: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="1"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_accountable{{ a.id }}">{{ a.pj_accountable }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Area: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <select class="form-control show-tick "
+                                                                                            name="pj_area{{ a.id }}">
+
+                                                                                        <option value="{{ a.pj_area }}">{{ a.pj_area }}</option>
+                                                                                        {% for i in areaList %}
+                                                                                            {% if not i == a.pj_area %}
+                                                                                                <option value="{{ i }}">{{ i }}</option>
+                                                                                            {% endif %}
+                                                                                        {% endfor %}
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Impact
+                                                                                Scope: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="1"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_impactScope{{ a.id }}">{{ a.pj_impactScope }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Internal
+                                                                                Target: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_internalTarget{{ a.id }}"
+                                                                                           value="{{ a.pj_internalTarget }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">External
+                                                                                constraint: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_externalConstraint{{ a.id }}"
+                                                                                           value="{{ a.pj_externalConstraint }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">External
+                                                                                constraint type: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <select class="form-control show-tick "
+                                                                                            name="pj_externalConstraintType{{ a.id }}">
+
+                                                                                        <option value="{{ a.pj_externalConstraintType }}">{{ a.pj_externalConstraintType }}</option>
+                                                                                        {% for i in externalConstraintTypeList %}
+                                                                                            {% if not i == a.pj_externalConstraintType %}
+                                                                                                <option value="{{ i }}">{{ i }}</option>
+                                                                                            {% endif %}
+                                                                                        {% endfor %}
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Status: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <select class="form-control show-tick "
+                                                                                            name="pj_status{{ a.id }}">
+
+                                                                                        <option value="{{ a.pj_status }}">{{ a.pj_status }}</option>
+                                                                                        {% for i in statusList %}
+                                                                                            {% if not i == a.pj_status %}
+                                                                                                <option value="{{ i }}">{{ i }}</option>
+                                                                                            {% endif %}
+                                                                                        {% endfor %}
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Required
+                                                                                Changes: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="3"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_requiredChanges{{ a.id }}">{{ a.pj_requiredChanges }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Incident/BT/Jira
+                                                                                reference: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="2"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_jira{{ a.id }}">{{ a.pj_jira }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">RCA: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="2"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_rca{{ a.id }}">{{ a.pj_rca }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Description: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="2"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_descriptionNonMandatory{{ a.id }}">{{ a.pj_descriptionNonMandatory }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Impact
+                                                                                Date: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_impactDate{{ a.id }}"
+                                                                                           value="{{ a.pj_impactDate }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Change
+                                                                                Implem. Date: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_changeImplemDate{{ a.id }}"
+                                                                                           value="{{ a.pj_changeImplemDate }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Priority: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <select class="form-control show-tick "
+                                                                                            name="pj_priority{{ a.id }}">
+
+                                                                                        <option value="{{ a.pj_priority }}">{{ a.pj_priority }}</option>
+                                                                                        {% for i in priorityList %}
+                                                                                            {% if not i == a.pj_priority %}
+                                                                                                <option value="{{ i }}">{{ i }}</option>
+                                                                                            {% endif %}
+                                                                                        {% endfor %}
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">CIB: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_cib{{ a.id }}"
+                                                                                           value="{{ a.pj_cib }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Binary
+                                                                                Availability: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_binaryAvail{{ a.id }}"
+                                                                                           value="{{ a.pj_binaryAvail }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Go
+                                                                                Live: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_goLiveDate{{ a.id }}"
+                                                                                           value="{{ a.pj_goLiveDate }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">External
+                                                                                Go Live: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:15%">
+                                                                                <div class="form-line">
+                                                                                    <input type="date"
+                                                                                           class="form-control no-resize"
+                                                                                           id="datepicker"
+                                                                                           name="pj_externalGoLiveDate{{ a.id }}"
+                                                                                           value="{{ a.pj_externalGoLiveDate }}">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Blockers/high
+                                                                                bugs pre implem: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:18%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="2"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_blockersHighBugs{{ a.id }}">{{ a.pj_blockersHighBugs }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div class="form-group">
+                                                                            <label for="name"
+                                                                                   class="col-sm-3 control-label"
+                                                                                   style="text-align: justify">Nb.
+                                                                                Clients incidents post
+                                                                                deployment: </label>
+                                                                            <div class="col-sm-9"
+                                                                                 style="padding-left:26%">
+                                                                                <div class="form-line">
+                                                                                     <textarea rows="1"
+                                                                                               class="form-control no-resize"
+                                                                                               name="pj_nbClient{{ a.id }}">{{ a.pj_nbClient }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <br>
+
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button class="btn btn-sm btn-primary waves-effect"
+                                                                                type="submit">
+                                                                            Submit
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td data-title="Detection Date">{{ a.detectionDate }}</td>
+                                                <td data-title="Project description"
+                                                    style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_projectDescription }}</td>
+                                                <td data-title="SGN team">{{ a.pj_teamOp }}</td>
+
+                                                <td data-title="Type">{{ a.pj_type }}</td>
+                                                <td data-title="Type of change">{{ a.pj_typeOfChange }}</td>
+                                                <td data-title="Accountable">{{ a.pj_accountable }}</td>
+                                                <td data-title="Area">{{ a.pj_area }}</td>
+                                                <td data-title="Impact Scope">{{ a.pj_impactScope }}</td>
+
+                                                <td data-title="Internal Target">{{ a.pj_internalTarget }}</td>
+                                                <td data-title="External constraint">{{ a.pj_externalConstraint }}</td>
+                                                <td data-title="External constraint type">{{ a.pj_externalConstraintType }}</td>
+                                                <td data-title="Status">{{ a.pj_status }}</td>
+                                                <td data-title="Required Changes"
+                                                    style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_requiredChanges }}</td>
+
+                                                <td data-title="Status and current task list">
+                                                    <form name="add_pj_comment{{ a.id }}" id="add_pj_comment{{ a.id }}"
+                                                          action="{% url 'home:comment_list_project' %}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="pjIdC" value="{{ a.id }}">
+                                                        <a href="#" style="color: #3c3c3c"><i class="material-icons"
+                                                                                              onclick="document.getElementById('add_pj_comment{{ a.id }}').submit()">history</i></a>
+                                                    </form>
+                                                </td>
+                                                <td data-title="Incident/BT/Jira reference">{{ a.pj_jira }}</td>
+                                                <td data-title="RCA"
+                                                    style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_rca }}</td>
+                                                <td data-title="Description"
+                                                    style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_descriptionNonMandatory }}</td>
+                                                <td data-title="Impact Date">{{ a.pj_impactDate }}</td>
+
+                                                <td data-title="Change Implem. Date" style="
+                                                        {% if not a.pj_changeImplemDate %}
+
+                                                        {% else %}
+                                                            {% if a.pj_nbClient %}
+                                                                background-color: red; color: white
+                                                            {% else %}
+                                                                background-color: green; color: white
+                                                            {% endif %}
+                                                        {% endif %}
+                                                        ">{{ a.pj_changeImplemDate }}</td>
+                                                <td data-title="Priority">{{ a.pj_priority }}</td>
+                                                <td data-title="CIB">{{ a.pj_cib }}</td>
+                                                <td data-title="Binary Availability"
+                                                    id="pj_binaryAvail">{{ a.pj_binaryAvail }}</td>
+                                                <td data-title="Go Live"
+                                                    id="pj_goLiveDate{{ a.id }}">{{ a.pj_goLiveDate }}</td>
+
+                                                <td data-title="External Go Live"
+                                                    style="{% if a.pj_nbClient %}background-color: red; color: white{% endif %}">{{ a.pj_externalGoLiveDate }}</td>
+                                                <td data-title="Blockers/high bugs pre implem"
+                                                    style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_blockersHighBugs }}</td>
+                                                <td id="nb_client_list" data-title="Post Impl. Incident"
+                                                    style="{% if a.pj_nbClient %}background-color: red; color: white{% endif %}">{{ a.pj_nbClient }}</td>
+                                                <td data-title="Remove"
+                                                    style="padding-left: 1.5rem; padding-right: 1.5rem">
+                                                    {% if privileges == 'suser' %}
+                                                        <form name="supp_pj{{ a.id }}" id="supp_pj{{ a.id }}"
+                                                              action="{% url 'home:supp_pj' a.id %}"
+                                                              method="post">{% csrf_token %}
+                                                            <a href="#" style="color: crimson"
+                                                               onclick="showConfirmMessage{{ a.id }}()">
+                                                                <i class="material-icons">remove_circle</i>
+                                                            </a>
+                                                        </form>
+
+                                                        <script>
+                                                            function showConfirmMessage {{ a.id }}() {
+                                                                swal({
+                                                                    title: "Are you sure?",
+                                                                    text: "You will not be able to recover {{ a.projectId }}!",
+                                                                    type: "warning",
+                                                                    showCancelButton: true,
+                                                                    confirmButtonColor: "#DD6B55",
+                                                                    confirmButtonText: "Yes, delete it!",
+                                                                    closeOnConfirm: false
+                                                                }, function () {
+                                                                    swal("Deleted!", "{{ a.projectId }} has been deleted.", "success");
+                                                                    document.getElementById('supp_pj{{ a.id }}').submit();
+                                                                });
+                                                            }
+                                                        </script>
+                                                    {% else %}
+                                                        Must be Admin
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div style="visibility: hidden;">
+                <table id="tableToExport" class="table table-hover table-mc-light-blue"
+                       style="white-space: nowrap; border-style: ridge;">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center; vertical-align: middle;  padding-left: 2.6rem; padding-right: 2.4rem">
+                            <span style="margin-right: 1rem">Team</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.6rem; padding-right: 3rem ">
+                            <span>ID</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 1rem">
+                            <span>Detection Date</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 7rem; padding-right: 7rem">
+                            <span>Project description</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-right: 1rem; padding-left: 2rem">
+                            <span style="margin-right: 1rem">SGN team</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 3rem; padding-right: 3rem">
+                            <SPAN style="margin-right: 1rem">Type</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2.7rem; padding-right: 2.7rem">
+                            <SPAN style="margin-right: 1rem">Type of change</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 2rem; padding-right: 2rem">
+                            <SPAN style="margin-right: 1rem">Accountable</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 3.2rem; padding-right: 3.2rem">
+                            <SPAN style="margin-right: 1rem">Area</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle;padding-left: 3.2rem; padding-right: 3.2rem">
+                            <SPAN style="margin-right: 1rem">Impact Scope</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 1.2rem; padding-right: 1.3rem">
+                            <span>Internal Target</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 2.1rem">
+                            <span>External constraint</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 2.1rem">
+                            <SPAN style="margin-right: 1rem">External constraint type</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 5rem; padding-right: 5rem">
+                            <SPAN style="margin-right: 1rem">Status</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 7rem; padding-right: 7rem">
+                            <span>Required Changes</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 5rem; padding-right: 5rem">
+                            <span>Status and current task list</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 1.2rem; padding-right: 1.3rem">
+                            <SPAN style="margin-right: 1rem">Incident/BT/Jira reference</SPAN></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 8rem; padding-right: 8rem">
+                            <span>RCA</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 8rem; padding-right: 8rem">
+                            <span>Description</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 1.2rem; padding-right: 1.3rem">
+                            <span>Impact Date</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2rem; padding-right: 2rem">
+                            <span>Change Implem. Date</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                            <span>Priority</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 4rem; padding-right: 4rem">
+                            <span>CIB</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                            <span>Binary Availability</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                            <span>Go live</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 2.5rem; padding-right: 2.5rem">
+                            <span>External Go Live</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 4rem; padding-right: 4rem">
+                            <span>Blockers/high bugs pre implem</span></th>
+                        <th style="text-align: center; vertical-align: middle; padding-left: 3rem; padding-right: 3rem">
+                            <span>Post Impl. Incident</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for a in projects %}
+                        <tr>
+                            <td data-title="Team">{{ a.pj_team }}</td>
+                            <td data-title="ID">{{ a.projectId }}</td>
+                            <td data-title="Detection Date">{{ a.detectionDate }}</td>
+                            <td data-title="Project description"
+                                style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_projectDescription }}</td>
+                            <td data-title="SGN team">{{ a.pj_teamOp }}</td>
+
+                            <td data-title="Type">{{ a.pj_type }}</td>
+                            <td data-title="Type of change">{{ a.pj_typeOfChange }}</td>
+                            <td data-title="Accountable">{{ a.pj_accountable }}</td>
+                            <td data-title="Area">{{ a.pj_area }}</td>
+                            <td data-title="Impact Scope">{{ a.pj_impactScope }}</td>
+
+                            <td data-title="Internal Target">{{ a.pj_internalTarget }}</td>
+                            <td data-title="External constraint">{{ a.pj_externalConstraint }}</td>
+                            <td data-title="External constraint type">{{ a.pj_externalConstraintType }}</td>
+                            <td data-title="Status">{{ a.pj_status }}</td>
+                            <td data-title="Required Changes"
+                                style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_requiredChanges }}</td>
+                            <td data-title="Status and current task list">
+                                {% for i in statusAndCurrentTaskList %}
+                                    {% if i.project_id == a.id %}
+                                        {{ i.text }}<br>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td data-title="Incident/BT/Jira reference">{{ a.pj_jira }}</td>
+                            <td data-title="RCA"
+                                style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_rca }}</td>
+                            <td data-title="Description"
+                                style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_descriptionNonMandatory }}</td>
+                            <td data-title="Impact Date">{{ a.pj_impactDate }}</td>
+
+                            <td data-title="Change Implem. Date" style="
+                                    {% if not a.pj_changeImplemDate %}
+
+                                    {% else %}
+                                        {% if a.pj_nbClient %}
+                                            background-color: red; color: white
+                                        {% else %}
+                                            background-color: green; color: white
+                                        {% endif %}
+                                    {% endif %}
+                                    ">{{ a.pj_changeImplemDate }}</td>
+                            <td data-title="Priority">{{ a.pj_priority }}</td>
+                            <td data-title="CIB">{{ a.pj_cib }}</td>
+                            <td data-title="Binary Availability">{{ a.pj_binaryAvail }}</td>
+                            <td data-title="Go Live">{{ a.pj_goLiveDate }}</td>
+
+                            <td data-title="External Go Live"
+                                style="{% if a.pj_nbClient %}background-color: red; color: white{% endif %}">{{ a.pj_externalGoLiveDate }}</td>
+                            <td data-title="Blockers/high bugs pre implem"
+                                style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">{{ a.pj_blockersHighBugs }}</td>
+                            <td data-title="Post Impl. Incident"
+                                style="{% if a.pj_nbClient %}background-color: red; color: white{% endif %}">{{ a.pj_nbClient }}</td>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <script type="text/javascript">
+                $(function () {
+                    $('[id*=btnExport]').on('click', function () {
+                        ExportToExcel('tableToExport');
+                        location.reload();
+                    });
+                });
+                function ExportToExcel(Id) {
+                    var tab_text = "<table border='2px'><tr>";
+                    var textRange;
+                    var j = 0;
+                    tab = document.getElementById(Id);
+                    var headerRow = $('[id*=tableToExport] tr:first');
+                    tab_text += headerRow.html() + '</tr><tr>';
+                    var rows = $('[id*=tableToExport] tr:not(:has(th))');
+                    for (j = 0; j < rows.length; j++) {
+                        if ($(rows[j]).css('display') != 'none') {
+                            tab_text = tab_text + rows[j].innerHTML + "</tr>";
+                        }
+                    }
+                    tab_text = tab_text + "</table>";
+                    tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, ""); //remove if u want links in your table
+                    tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+                    tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+                    var ua = window.navigator.userAgent;
+                    var msie = ua.indexOf("MSIE ");
+                    if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+                    {
+                        txtArea1.document.open("txt/html", "replace");
+                        txtArea1.document.write(tab_text);
+                        txtArea1.document.close();
+                        txtArea1.focus();
+                        sa = txtArea1.document.execCommand("SaveAs", true, Id + ".xls");
+                    }
+                    else {                 //other browser not tested on IE 11
+                        sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+                    }
+                    return (sa);
+                }
+            </script>
+
+        </section>
+
+
+        <!--#Content-->
+        <script src="{% static 'home/pages/projects/projects.js' %}"></script>
+    {% endif %}
+{% endblock %}
+

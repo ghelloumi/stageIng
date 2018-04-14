@@ -1,0 +1,179 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | New Problem{% endblock %}
+
+<link href="{% static 'home/css/pages/new_problem.css' %}" rel="stylesheet" type="text/css">
+<script src="{% static 'home/plugins/node-waves/waves.js' %}"></script>
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_problems %}
+    class="active"
+{% endblock %}
+{% block nav_new_problem %}
+    class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block pg_admins %}
+{% if test %}
+    <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+    </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+<!--Content-->
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+<link href="{% static 'home/pages/problems/newproblems.css' %}" rel="stylesheet">
+
+    <!--Content-->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- form -->
+            <form action="{% url 'home:add_problem' %}" method="POST">
+                {% csrf_token %}
+                <div>
+                    <div class="row clearfix">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="card">
+                                <div class="header">
+                                    <h2>ADDING NEW PROBLEM FORM</h2><br>
+                                    <select class="form-control show-tick" name="pb_type">
+                                        <option value="SGN">SGN</option>
+                                        <option value="MarketMap">MarketMap</option>
+                                    </select>
+                                </div>
+                                <div class="body">
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Problem Description <span style="color: red">*</span></h2>
+                                        <p style="color: red">{{ pb_desc_err }}</p>
+                                        <div class="form-line">
+                                                            <textarea rows="4" class="form-control no-resize"
+                                                                      placeholder="Please type what you want..."
+                                                                      name="description">{{ description }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12 ">
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Status <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pb_status_err }}</p>
+                                            <select class="form-control show-tick" name="status">
+                                                {% if not pbstatus %}
+                                                <option value="">-- Please select --</option>
+                                                <option value="Dev Analysis">Dev Analysis</option>
+                                                <option value="Analysis">Analysis</option>
+                                                <option value="Change">Change</option>
+                                                <option value="Dev Fix">Dev Fix</option>
+                                                <option value="Closed">Closed</option>
+                                                <option value="Project">Project</option>
+                                                {% else %}
+                                                    <option value="{{ pbstatus }}">{{ pbstatus }}</option>
+                                                    {% for t in statusList %}
+                                                        {% if not t == pbstatus %}
+                                                            <option value="{{ t }}">{{ t }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12 ">
+                                        {#                                                    Urgency#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Urgency <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pb_urgency_err }}</p>
+                                            <select class="form-control show-tick" name="urgency">
+                                                {% if not urgency %}
+                                                <option value="">-- Please select --</option>
+                                                <option value="1">1</option>
+                                                <option value="1">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                {% else %}
+                                                    <option value="{{ urgency }}">{{ urgency }}</option>
+                                                    {% for i in t %}
+                                                        {% if not i == urgency %}
+                                                            <option value="{{ i }}">{{ i }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                        {#                                                        importance#}
+                                        <div class="col-sm-6">
+                                            <h2 class="card-inside-title">Importance <span style="color: red">*</span></h2>
+                                            <p style="color: red">{{ pb_importance_err }}</p>
+                                            <select class="form-control show-tick" name="importance">
+                                                {% if not importance %}
+                                                <option value="">-- Please select --</option>
+                                                <option value="1">1</option>
+                                                <option value="1">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                {% else %}
+                                                    <option value="{{ importance }}">{{ importance }}</option>
+                                                    {% for i in t %}
+                                                        {% if not i == importance %}
+                                                            <option value="{{ i }}">{{ i }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12 ">
+                                            {#                                           Jira#}
+                                            <div class="col-sm-6 ">
+                                                <h2 class="card-inside-title">Incident/BT/Jira reference</h2>
+                                                <div class="form-line">
+                                                            <textarea rows="2" class="form-control no-resize"
+                                                                      placeholder="Ex: MDS-1233"
+                                                                      name="jira"></textarea>
+                                                </div>
+
+                                            </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12 ">
+                                            {#                                           Comment#}
+                                            <div class="col-sm-6 ">
+                                                <h2 class="card-inside-title">Comment</h2>
+                                                <div class="form-line">
+                                                            <textarea rows="4" class="form-control no-resize"
+                                                                      placeholder="Please type what you want..."
+                                                                      name="comment"></textarea>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    <input type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect" style="margin-left: 80%" value="Add Problem">
+                                    </input>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- #END Form#  -->
+        </div>
+    </section>
+    <!--#Content-->
+
+<script src="{% static 'home/pages/problems/newproblems.js' %}"></script>
+{% endif %}
+{% endblock %}
+
+
+

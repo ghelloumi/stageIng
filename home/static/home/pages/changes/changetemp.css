@@ -1,0 +1,29 @@
+.testTable {
+    display: table;
+    margin: 0px;
+    padding: 0px;
+}
+
+.testRow {
+    display: table-row;
+}
+
+.testRow > span {
+    list-style: none;
+    display: table-cell;
+    border: 1px solid #000;
+    padding: 2px 6px;
+}
+
+.testHeader {
+    display: table-header-group;
+    /*position: absolute;*/
+}
+
+.testHeader span {
+    background-color: #ccc;
+}
+
+.testBody {
+    display: table-row-group;
+}

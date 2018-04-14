@@ -1,0 +1,1910 @@
+{% extends  'home/base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}FIS | New Change{% endblock %}
+
+
+<!-- sideBars -->
+{% block user_img %}{% static "home/images/user.png" %}{% endblock %}
+{% block user_name %}{{ login.gecos }}{% endblock %}
+{% block user_email %}{{ login.email }}{% endblock %}
+<!-- #sideBars -->
+
+<!-- Menu -->
+{% block nav_changes %}
+class="active"
+{% endblock %}
+{% block nav_new_change %}
+class="active"
+{% endblock %}
+<!-- #Menu -->
+{% block pg_admins %}
+{% if test %}
+        <a href="{% url 'home:admins' %}">
+            <i class="material-icons">perm_identity</i>
+            <span>Administration</span>
+        </a>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+
+{% if not testU %}
+    <meta http-equiv="refresh" content="0; url={% url 'home:notfound' %}">
+{% else %}
+<link href="{% static 'home/pages/changes/newchange.css' %}" rel="stylesheet">
+
+<!--Content-->
+<section class="content">
+    <div class="container-fluid">
+        <!-- form -->
+        <form action="{% url 'home:add_change' %}" method="POST">
+            {% csrf_token %}
+            <div>
+                <div class="row clearfix">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card">
+                            <div class="header">
+                                <h2>ADDING NEW CHANGE FORM</h2><br>
+                                <select class="form-control show-tick" name="ch_team">
+                                    <option value="SGN">SGN</option>
+                                    <option value="MarketMap">MarketMap</option>
+                                </select>
+                            </div>
+                            <div class="body">
+                                <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                    {# Summary  #}
+                                    <div class="col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Summary<span style="color: red">*</span></h2>
+                                        <p style="color: red">{{ ch_desc_err }}</p>
+                                        <div class="form-line">
+                                                                <textarea rows="2" class="form-control no-resize"
+                                                                          placeholder="Please type what you want..."
+                                                                          name="ch_desc">{{ ch_desc }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    {# Date #}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Due Date</h2>
+                                        <div class="form-line">
+                                            <input type="date" class="form-control no-resize" id="datepicker"
+                                                   name="ch_date" value="{{ ch_date }}">
+                                        </div>
+                                    </div>
+
+                                    {# Category #}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Category<span
+                                                    style="color: red">*</span></h2>
+                                        <p style="color: red">{{ ch_category_err }}</p>
+                                        <div class="form-line">
+                                            <select class="form-control show-tick" name="ch_category" id="ch_category"
+                                                    onchange="fn()">
+                                                {% if not ch_category %}
+                                                    <option value="">-- Please select --</option>
+                                                    {% for t in category %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <option value="{{ ch_category }}">{{ ch_category }}</option>
+                                                    {% for t in category %}
+                                                        {% if not t == ch_category %}
+                                                            <option value="{{ t }}">{{ t }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {# Change reference#}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <!--incidentOrRequest-->
+                                        <div id="incidentOrRequest">
+                                            <h2 class="card-inside-title">Change Reference<span
+                                                    style="color: red">*</span></h2>
+                                            <p style="color: red">{{ ch_ref_err }}</p>
+                                            <div class="form-line">
+                                                <textarea rows="1" class="form-control no-resize"
+                                                          placeholder="Please type what you want..."
+                                                          name="ch_ref">{{ ch_ref }}</textarea>
+                                            </div>
+                                        </div>
+
+                                        <!--sr-->
+                                        <div id="sr">
+                                            <h2 class="card-inside-title">Change Reference<span
+                                                    style="color: red">*</span></h2>
+                                            <p style="color: red">{{ ch_ref_err }}</p>
+                                            <div class="form-line">
+                                                <textarea rows="1" class="form-control no-resize"
+                                                      placeholder="Please type what you want..."
+                                                      name="ch_ref_s">{{ ch_ref_s }}</textarea>
+                                            </div>
+                                        </div>
+
+                                        <!--SDMProject-->
+                                        <div id="SDMProject">
+                                            <h2 class="card-inside-title">Change Reference<span
+                                                    style="color: red">*</span></h2>
+                                            <p style="color: red">{{ ch_ref_err }}</p>
+                                            <div class="form-line">
+                                                <select class="form-control show-tick" name="ch_ref_sdm">
+                                                {% if not ch_ref_sdm %}
+                                                    <option value="">-- Please select --</option>
+                                                    {% for t in pj_SDM %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <option value="{{ ch_ref_sdm }}">{{ ch_ref_sdm }}</option>
+                                                    {% for t in pj_SDM %}
+                                                        {% if not t == ch_ref_sdm %}
+                                                            <option value="{{ t }}">{{ t }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!--OpsProject-->
+                                        <div id="OpsProject">
+                                            <h2 class="card-inside-title">Change Reference<span
+                                                    style="color: red">*</span></h2>
+                                            <p style="color: red">{{ ch_ref_err }}</p>
+                                            <div class="form-line">
+                                                <select class="form-control show-tick" name="ch_ref_ops">
+                                                {% if not ch_ref_ops %}
+                                                    <option value="">-- Please select --</option>
+                                                    {% for t in pj_Ops %}
+                                                        <option value="{{ t }}">{{ t }}</option>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <option value="{{ ch_ref_ops }}">{{ ch_ref_ops }}</option>
+                                                    {% for t in pj_Ops %}
+                                                        {% if not t == ch_ref_ops %}
+                                                            <option value="{{ t }}">{{ t }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!--Problem-->
+                                        <div id="Problem">
+                                            <h2 class="card-inside-title">Change Reference<span
+                                                    style="color: red">*</span></h2>
+                                            <p style="color: red">{{ ch_ref_err }}</p>
+                                            <div class="form-line">
+                                                <select class="form-control show-tick" name="ch_ref_pb">
+                                                {% if not ch_ref_pb %}
+                                                    <option value="">-- Please select --</option>
+                                                    {% for t in pb %}
+                                                        <option value="{{ t.problemId }}">{{ t.problemId }}</option>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <option value="{{ ch_ref_pb }}">{{ ch_ref_pb }}</option>
+                                                    {% for t in pb %}
+                                                        {% if not t == ch_ref_pb %}
+                                                            <option value="{{ t.problemId }}">{{ t.problemId }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {# Change Goal #}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Change Goal<span style="color: red">*</span>
+                                        </h2>
+                                        <p style="color: red">{{ ch_goal_err }}</p>
+                                        <div class="form-line">
+                                                                <textarea rows="1" class="form-control no-resize"
+                                                                          placeholder="Please type what you want..."
+                                                                          name="ch_goal">{{ ch_goal }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    {# Server/account#}
+                                    <div class="col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Server/Account<span style="color: red">*</span>
+                                        </h2>
+                                        <p style="color: red">{{ ch_server_account_err }}</p>
+                                        <div class="form-line">
+                                                                <textarea rows="1" class="form-control no-resize"
+                                                                          placeholder="Please type what you want..."
+                                                                          name="ch_server_account">{{ ch_server_account }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    {# File to be pushed #}
+                                    <div class="col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">File to be pushed<span style="color: red">*</span>
+                                        </h2>
+                                        <p style="color: red">{{ ch_file_pushed_err }}</p>
+                                        <div class="form-line">
+                                                                <textarea rows="1" class="form-control no-resize"
+                                                                          placeholder="Please type what you want..."
+                                                                          name="ch_file_pushed">{{ ch_file_pushed }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    {# Rollback File#}
+                                    <div class="col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Rollback File<span style="color: red">*</span>
+                                        </h2>
+                                        <p style="color: red">{{ ch_rollback_file_err }}</p>
+                                        <div class="form-line">
+                                                                <textarea rows="1" class="form-control no-resize"
+                                                                          placeholder="Please type what you want..."
+                                                                          name="ch_rollback_file">{{ ch_rollback_file }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    {# Check Case ID #}
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                        <h2 class="card-inside-title">Check Case ID</h2>
+                                        <div class="form-line">
+                                            <select class="form-control show-tick" name="checkId" id="checkId">
+                                                {% if not ch_ckId %}
+                                                    <option value="">-- Please select --</option>
+                                                    {% for t in checks %}
+                                                        {% if t.ck_status == 'Open' or t.ck_status == 'On Hold' %}
+                                                        <option value="{{ t.checkId }}">{{ t.checkId }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <option value="{{ checkId }}">{{ checkId }}</option>
+                                                    {% for t in checks %}
+                                                        {% if not t.checkId == checkId and not t.ck_status == 'Closed' %}
+                                                            <option value="{{ t.checkId }}">{{ t.checkId }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                    {# Template #}
+                                    <!--selectTemplate-->
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                            <h2 class="card-inside-title">Template</h2>
+                                            <div class="form-line">
+                                            <select required class="form-control show-tick" name="selectTemplate" id='selectTemplate' onchange="fnTemplate()">
+                                                {% if not ch_template %}
+                                                    <option value="">-- Please select --</option>
+                                                    <option value="License by User">License by User</option>
+                                                    <option value="License by Exchange">License by Exchange</option>
+                                                    <option value="Release">Release</option>
+                                                    <option value="APS Update">APS Update</option>
+                                                    <option value="Feeds.ini/gltrade.ini">Feeds.ini/gltrade.ini</option>
+                                                    <option value="File.ini">File.ini</option>
+                                                {% else %}
+                                                    <option value="{{ ch_template }}">{{ ch_template }}</option>
+                                                    {% for i in templates %}
+                                                        {% if not i == ch_template %}
+                                                            <option value="{{ i }}">{{ i }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <br>
+
+
+                                    <div class="col-sm-6 col-md-12 col-xs-12 ">
+                                    <p  style="display: none;"></p>
+                                    <legend><div id="sectionTwoTitle"></div></legend>
+
+                                    <div id="t1">
+                                        <ul class="testTable">
+                                            <div class="testHeader">
+                                                <li class="testRow">
+                                                    <span>#</span>
+                                                    <span>MDF Analysis</span>
+                                                    <span>Explanation</span>
+                                                    <span>Status Change Owner</span>
+                                                </li>
+                                            </div>
+                                            <div class="testBody">
+                                                <li class="testRow">
+                                                    <span><p align="left">1</p></span>
+                                                    <span><p align="left">Feed type ?</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="One of the feed types must be chosen">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank1_res" onchange="temp1_rank1_res_fn()" style="border: 0;width: 100%; height: 100%">
+                                                            {% if not b.0.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                            {% if not b.0.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                                <option value="{{ b.0.res }}">{{ b.0.res }}</option>
+                                                                {% for i in temp11 %}
+                                                                    {% if not i ==  b.0.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">2</p></span>
+                                                    <span><p align="left" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">Exchange zone and type ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                    data-placement="right" data-content="An Exchange type must be chosen">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank2_res" onchange="temp1_rank2_res_fn()" style="border: 0;width: 100%; height: 100%">
+                                                             {% if not b.1.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Equities> EMEA">Equities> EMEA</option>
+                                                                <option value="Equities> AMER">Equities> AMER</option>
+                                                                <option value="Equities> APAC">Equities> APAC</option>
+                                                                <option value="Equities> MTF">Equities> MTF</option>
+                                                                <option value="Derivative> EMEA">Derivative> EMEA</option>
+                                                                <option value="Derivative> AMER">Derivative> AMER</option>
+                                                                <option value="Derivative> APAC">Derivative> APAC</option>
+                                                                <option value="Derivative> 524">Derivative> 524</option>
+                                                             {% else %}
+                                                            {% if not b.1.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Equities> EMEA">Equities> EMEA</option>
+                                                                <option value="Equities> AMER">Equities> AMER</option>
+                                                                <option value="Equities> APAC">Equities> APAC</option>
+                                                                <option value="Equities> MTF">Equities> MTF</option>
+                                                                <option value="Derivative> EMEA">Derivative> EMEA</option>
+                                                                <option value="Derivative> AMER">Derivative> AMER</option>
+                                                                <option value="Derivative> APAC">Derivative> APAC</option>
+                                                                <option value="Derivative> 524">Derivative> 524</option>
+                                                            {% else %}
+                                                                <option value="{{ b.1.res }}">{{ b.1.res }}</option>
+                                                                {% for i in temp12 %}
+                                                                    {% if not i ==  b.1.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">3</p></span>
+                                                    <span><p align="left">MDF Missing ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                            data-html="true" data-placement="right" data-content="If Yes > move to item 4<br />If No > move to Item 6">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank3_res" onchange="temp1_rank3_res_fn()">
+                                                            {% if not b.2.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.2.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.2.res }}">{{ b.2.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.2.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank3_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.2.temp == 'License by User' %}{{ b.2.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">4</p></span>
+                                                    <span><p align="left">Type of MDF Missing ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                            data-html="true" data-placement="right" data-content="If it's the same as item 1 > move to Item 5<br />If No > move to Item 6">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank4_res" onchange="temp1_rank4_res_fn()" multiple>
+                                                                {% if not b.3.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                            {% if not b.3.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                                <option selected value="{{ b.3.res }}">{{ b.3.res }}</option>
+                                                                {% for i in temp11 %}
+                                                                    {% if not i ==  b.3.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">5</p></span>
+                                                    <span><p align="left" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">MDF Missing related to an exchange declared on MDS ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                            data-html="true" data-placement="right" data-content="If Yes > add the missing mdf to the new mdf folder otherwise Don't push the License.<br />If No > move to Item 6">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank5_res" onchange="temp1_rank5_res_fn()">
+                                                                {% if not b.4.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.4.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.4.res }}">{{ b.4.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.4.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank5_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.4.temp == 'License by User' %}{{ b.4.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">6</p></span>
+                                                    <span><p align="left">New MDF Added ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                            data-html="true" data-placement="right" data-content="If Yes > move to item 7<br />If No > move to Item 9">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank6_res" onchange="temp1_rank6_res_fn()">
+                                                                {% if not b.5.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.5.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.5.res }}">{{ b.5.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.5.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank6_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.5.temp == 'License by User' %}{{ b.5.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">7</p></span>
+                                                    <span><p align="left">Type of New MDF ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                            data-html="true" data-placement="right" data-content="If it's the same as item 1 > move to Item 8<br />If No > move to Item 9">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank7_res" onchange="temp1_rank7_res_fn()" multiple>
+                                                                {% if not b.6.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                            {% if not b.6.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                                <option selected value="{{ b.6.res }}">{{ b.6.res }}</option>
+                                                                {% for i in temp11 %}
+                                                                    {% if not i ==  b.6.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">8</p></span>
+                                                    <span><p align="left" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">New MDF related to an exchange declared on MDS ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                           data-html="true" data-placement="right" data-content="If Yes > mdf folder should be pushed with License otherwise Don't push the License.<br />If No > move to Item 9">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank8_res" onchange="temp1_rank8_res_fn()">
+                                                                {% if not b.7.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.7.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.7.res }}">{{ b.7.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.7.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank8_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.7.temp == 'License by User' %}{{ b.7.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">9</p></span>
+                                                    <span><p align="left">MDF Updated ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                            data-html="true" data-placement="right" data-content="If Yes > move to item 10<br>If No > Check Completed">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank9_res" onchange="temp1_rank9_res_fn()">
+                                                                {% if not b.8.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.8.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.8.res }}">{{ b.8.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.8.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank9_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.8.temp == 'License by User' %}{{ b.8.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">10</p></span>
+                                                    <span><p align="left">Type of MDF Updated ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If it's the same as item 1 > move to Item 11<br>If No > Check Completed">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank10_res" onchange="temp1_rank10_res_fn()" multiple>
+                                                                {% if not b.9.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                            {% if not b.9.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Realtime">Realtime</option>
+                                                                <option value="Delayed">Delayed</option>
+                                                                <option value="Referential">Referential</option>
+                                                            {% else %}
+                                                                <option selected value="{{ b.9.res }}">{{ b.9.res }}</option>
+                                                                {% for i in temp11 %}
+                                                                    {% if not i ==  b.9.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">11</p></span>
+                                                    <span><p align="left" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">MDF updated related to an exchange declared ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > mdf folder should be pushed with License otherwise Don't push the License.<br>If No > Check Completed">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank11_res" onchange="temp1_rank11_res_fn()">
+                                                                {% if not b.10.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.10.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.10.res }}">{{ b.10.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.10.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank11_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.10.temp == 'License by User' %}{{ b.10.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                            </div>
+                                            <br>
+                                        </ul>
+                                        <ul class="testTable">
+                                            <div class="testHeader">
+                                                <li class="testRow">
+                                                    <span>#</span>
+                                                    <span>License Analysis</span>
+                                                    <span>Explanation</span>
+                                                    <span>Result</span>
+                                                </li>
+                                            </div>
+                                            <div class="testBody">
+                                                <li class="testRow">
+                                                    <span><p align="left">1</p></span>
+                                                    <span><p align="left">Users Added ?</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-placement="right" data-content="If Yes > mention the users added and its associated mdf<br>If No > move to item 2">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank12_res" onchange="temp1_rank12_res_fn()">
+                                                                {% if not b.11.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.11.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.11.res }}">{{ b.11.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.11.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank12_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.11.temp == 'License by User' %}{{ b.11.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">2</p></span>
+                                                    <span><p align="left">Users Modified ?</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-placement="right" data-content="If Yes > Add confirmation received from CSE otherwise license will not be pushed<br>If No > Move to Item 3">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank13_res" onchange="temp1_rank13_res_fn()">
+                                                                {% if not b.12.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.12.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.12.res }}">{{ b.12.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.12.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank13_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.12.temp == 'License by User' %}{{ b.12.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">3</p></span>
+                                                    <span><p align="left">Users Removed ?</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                    data-placement="right" data-content="If Yes > mention comment<br>If No > move to Item 4">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank14_res" onchange="temp1_rank14_res_fn()">
+                                                                {% if not b.13.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.13.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.13.res }}">{{ b.13.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.13.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank14_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.13.temp == 'License by User' %}{{ b.13.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">4</p></span>
+                                                    <span><p align="left" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">User’s mdf removed is related to an exchange declared on MDS</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                   data-html="true" data-placement="right" data-content="If Yes > Add confirmation received from CSE otherwise license will not be pushed<br>If No > move to Item 5">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank15_res" onchange="temp1_rank15_res_fn()">
+                                                                    {% if not b.14.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.14.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.14.res }}">{{ b.14.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.14.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank15_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.14.temp == 'License by User' %}{{ b.14.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">5</p></span>
+                                                    <span><p align="left" style="text-align: start;word-wrap: break-word; white-space:pre-line; white-space:pre-line">Users added/modified not found in users.ini</p></span>
+                                                    <span>
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                   data-html="true" data-placement="right" data-content="If Yes >  update users.ini then Push the License<br>If No > Check Completed - license can be pushed">
+                                                        <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp1_rank16_res" onchange="temp1_rank16_res_fn()">
+                                                                    {% if not b.15.temp == 'License by User' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.15.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.15.res }}">{{ b.15.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.15.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp1_rank16_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.15.temp == 'License by User' %}{{ b.15.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                            </div>
+                                            <br><br><br>
+                                        </ul>
+                                    </div>
+
+                                    <div id="t2">
+                                        <ul class="testTable">
+                                            <div class="testHeader">
+                                                <li class="testRow">
+                                                    <span>#</span>
+                                                    <span>LicenseComparator Analysis</span>
+                                                    <span>Explanation</span>
+                                                    <span>Result</span>
+                                                </li>
+                                            </div>
+                                            <div class="testBody">
+                                                <li class="testRow">
+                                                    <span><p align="left">1</p></span>
+                                                    <span><p align="left">Physical Line (1L, 2L, …) Update</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Indicate the type of update (Add, Remove) and the Line <br>If No > move to item 2">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp2_rank1_res" onchange="temp2_rank1_res_fn()">
+                                                                {% if not b.0.temp == 'License by Exchange' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.0.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.0.res }}">{{ b.0.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.0.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp2_rank1_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.0.temp == 'License by Exchange' %}{{ b.0.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">2</p></span>
+                                                    <span><p align="left">Exchange (PAR, MIL, …) Update</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Indicate the type of update (Add, Remove) and the Exchange<br>If No > move to item 3">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp2_rank2_res" onchange="temp2_rank2_res_fn()">
+                                                                {% if not b.1.temp == 'License by Exchange' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.1.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.1.res }}">{{ b.1.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.1.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp2_rank2_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.1.temp == 'License by Exchange' %}{{ b.1.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">3</p></span>
+                                                    <span><p align="left">Market (CSH, OPT, …) Update</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Indicate the type of update (Add, Remove) and the Exchange/Market <br>If No > move to item 4">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp2_rank3_res" onchange="temp2_rank3_res_fn()">
+                                                                {% if not b.2.temp == 'License by Exchange' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.2.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.2.res }}">{{ b.2.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.2.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp2_rank3_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.2.temp == 'License by Exchange' %}{{ b.2.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">4</p></span>
+                                                    <span><p align="left">Request (DIC, MR, …) Update</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Indicate the type of update (Add, Remove) and the Exchange/Market/Request<br>If No > move to item 5">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp2_rank4_res" onchange="temp2_rank4_res_fn()">
+                                                                {% if not b.3.temp == 'License by Exchange' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.3.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.3.res }}">{{ b.3.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.3.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp2_rank4_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.3.temp == 'License by Exchange' %}{{ b.3.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">5</p></span>
+                                                    <span><p align="left">Level (K1, K21, …) Update</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Indicate the type of update (Add, Remove) and the Exchange/Market/Request/Level<br>If No > move to item 6">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp2_rank5_res" onchange="temp2_rank5_res_fn()">
+                                                                {% if not b.4.temp == 'License by Exchange' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.4.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.4.res }}">{{ b.4.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.4.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp2_rank5_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.4.temp == 'License by Exchange' %}{{ b.4.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">6</p></span>
+                                                    <span><p align="left">Nb User (API, GLWIN, …) Update</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Indicate the type of update (Add, Remove) and the Impacted User<br>If No > Push the License">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp2_rank6_res" onchange="temp2_rank6_res_fn()">
+                                                                    {% if not b.5.temp == 'License by Exchange' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.5.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.5.res }}">{{ b.5.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.5.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp2_rank6_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.5.temp == 'License by Exchange' %}{{ b.5.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                            </div>
+                                            <br>
+                                        </ul>
+                                    </div>
+
+                                    <div id="t3">
+                                        <ul class="testTable">
+                                            <div class="testHeader">
+                                                <li class="testRow">
+                                                    <span>#</span>
+                                                    <span>Release Analysis</span>
+                                                    <span>Explanation</span>
+                                                    <span>Result</span>
+                                                </li>
+                                            </div>
+                                            <div class="testBody">
+                                                <li class="testRow">
+                                                    <span><p align="left">1</p></span>
+                                                    <span><p align="left">Type of Release</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover" data-html="true" data-placement="right" data-content="Type of release must be mentionned">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp3_rank1_res">
+                                                            {% if not b.0.temp == 'Release' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Source SLC/PP">Source SLC/PP</option>
+                                                                <option value="MDS Plugin">MDS Plugin</option>
+                                                                <option value="P3">P3</option>
+                                                                <option value="NI">NI</option>
+                                                                <option value="MDS">MDS</option>
+                                                            {% else %}
+                                                            {% if not b.0.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Source SLC/PP">Source SLC/PP</option>
+                                                                <option value="MDS Plugin">MDS Plugin</option>
+                                                                <option value="P3">P3</option>
+                                                                <option value="NI">NI</option>
+                                                                <option value="MDS">MDS</option>
+                                                            {% else %}
+                                                                <option value="{{ b.0.res }}">{{ b.0.res }}</option>
+                                                                {% for i in temp3 %}
+                                                                    {% if not i ==  b.0.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">2</p></span>
+                                                    <span><p align="left">Target Version</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                         data-html="true" data-placement="right" data-content="Version must be mentionned">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span >
+                                                        <p align="left">
+                                                            <div class="form-line">
+                                                                <textarea required name="temp3_rank2_res" rows="1" class="form-control no-resize" placeholder="Target Version to be released">{% if b.1.temp == 'Release' %}{{ b.1.res }}{% endif %}</textarea>
+                                                            </div>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">3</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Number of Release scripts to be pushed</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="Add the number of Scripts that must be pushed">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <div class="form-line">
+                                                                <textarea required name="temp3_rank3_res" rows="1" class="form-control no-resize">{% if b.2.temp == 'Release' %}{{ b.2.res }}{% endif %}</textarea>
+                                                            </div>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">4</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">makeList done ?(Mandatory for ReleaseType = MDS)</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                         data-html="true" data-placement="right" data-content="If Yes > add the makeList output to be used in doule check<br>If No (and Release Type=MDS) > Release will not be pushed, otherwise move to item 5">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <select  required class="show-tick" name="temp3_rank4_res" onchange="temp3_rank4_res_fn()">
+                                                                {% if not b.3.temp == 'Release' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.3.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.3.res }}">{{ b.3.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.3.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        <textarea disabled name="temp3_rank4_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.3.temp == 'Release' %}{{ b.3.res_req }}{% endif %}</textarea>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">5</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">ldd command done ?(Mandatory for ReleaseType = SLC/PP)</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > add the output of ldd command<br>If No (and ReleaseType=SLC/PP) > Release will not be pushed, othrewise check completed - Release to be pushed">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp3_rank5_res" onchange="temp3_rank5_res_fn()">
+                                                                {% if not b.4.temp == 'Release' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.4.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.4.res }}">{{ b.4.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.4.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        <textarea disabled name="temp3_rank5_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.4.temp == 'Release' %}{{ b.4.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                            </div>
+                                            <br>
+                                        </ul>
+                                    </div>
+
+                                    <div id="t4">
+                                        <ul class="testTable">
+                                            <div class="testHeader">
+                                                <li class="testRow">
+                                                    <span>#</span>
+                                                    <span>APS Analysis</span>
+                                                    <span>Explanation</span>
+                                                    <span>Result</span>
+                                                </li>
+                                            </div>
+                                            <div class="testBody">
+                                                <li class="testRow">
+                                                    <span><p align="left">1</p></span>
+                                                    <span><p align="left">APS Update Type</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover" data-html="true" data-placement="right" data-content="One type sould be chosen">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp4_rank1_res">
+                                                                {% if not b.0.temp == 'APS Update' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Add">Add</option>
+                                                                <option value="Remove">Remove</option>
+                                                            {% else %}
+                                                            {% if not b.0.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Add">Add</option>
+                                                                <option value="Remove">Remove</option>
+                                                            {% else %}
+                                                                <option value="{{ b.0.res }}">{{ b.0.res }}</option>
+                                                                {% for i in temp4 %}
+                                                                    {% if not i ==  b.0.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">2</p></span>
+                                                    <span><p align="left">Number of APS to be added or Removed</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                         data-html="true" data-placement="right" data-content="Indicate the target APS Number to add or to removed">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <div class="form-line">
+                                                                <textarea required name="temp4_rank2_res" rows="1" class="form-control no-resize">{% if b.1.temp == 'APS Update' %}{{ b.1.res }}{% endif %}</textarea>
+                                                            </div>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">3</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">APS Node.Subnode already Exist ?</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > change will not be pushed (if Update Type=Add) otherwise move to item 5 <br>If No > change will not be pushed (if Update Type=Remove) otherwise move to item 4">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp4_rank3_res" onchange="temp4_rank3_res_fn()">
+                                                                {% if not b.2.temp == 'APS Update' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.2.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.2.res }}">{{ b.2.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.2.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        <textarea disabled name="temp4_rank3_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.2.temp == 'APS Update' %}{{ b.2.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">4</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Last APS Section Number </p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                         data-html="true" data-placement="right" data-content="Indicate the current APS Section Number">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <div class="form-line">
+                                                                <textarea required name="temp4_rank4_res" rows="1" class="form-control no-resize">{% if b.3.temp == 'APS Update' %}{{ b.3.res }}{% endif %}</textarea>
+                                                            </div>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">5</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">New Last APS Section Number </p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="Indicate the New APS Section Number">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <div class="form-line">
+                                                                <textarea required name="temp4_rank5_res" rows="1" class="form-control no-resize">{% if b.4.temp == 'APS Update' %}{{ b.4.res }}{% endif %}</textarea>
+                                                            </div>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                            </div>
+                                            <br>
+                                        </ul>
+                                    </div>
+
+                                    <div id="t5">
+                                        <ul class="testTable">
+                                            <div class="testHeader">
+                                                    <li class="testRow">
+                                                        <span>#</span>
+                                                        <span>Feeds.ini/gltrade.ini</span>
+                                                        <span>Explanation</span>
+                                                        <span>Result</span>
+                                                    </li>
+                                            </div>
+                                            <div class="testBody">
+                                                <li class="testRow">
+                                                    <span><p align="left">1</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Change will be done on</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="A type must be chosen">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank1_res">
+
+                                                                {% if not b.0.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Feed Service">Feed Service</option>
+                                                                <option value="Physical Line">Physical Line</option>
+                                                            {% else %}
+                                                            {% if not b.0.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Feed Service">Feed Service</option>
+                                                                <option value="Physical Line">Physical Line</option>
+                                                            {% else %}
+                                                                <option value="{{ b.0.res }}">{{ b.0.res }}</option>
+                                                                {% for i in temp51 %}
+                                                                    {% if not i ==  b.0.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+
+
+
+                                                            </select>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">2</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Type of Line Update</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="An update type must be chosen">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <div class="form-line">
+                                                                <textarea required name="temp5_rank2_res" rows="1" class="form-control no-resize" placeholder="Update Feed or MDS Father">{% if b.1.temp == 'Feeds.ini/gltrade.ini' %}{{ b.1.res }}{% endif %}</textarea>
+                                                            </div>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">3</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Feed Added?</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Item 8 and 9 must filled<br>If No > Move to Item 4">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank3_res" onchange="temp5_rank3_res_fn()">
+                                                                {% if not b.2.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.2.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.2.res }}">{{ b.2.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.2.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                        <textarea disabled name="temp5_rank3_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.2.temp == 'Feeds.ini/gltrade.ini' %}{{ b.2.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">4</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Feed Removed ?</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Item 8 and 9 must filled<br>If No > Move to Item 5">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank4_res" onchange="temp5_rank4_res_fn()">
+                                                                {% if not b.3.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.3.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.3.res }}">{{ b.3.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.3.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank4_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.3.temp == 'Feeds.ini/gltrade.ini' %}{{ b.3.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">5</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Father added</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Item 8, 10 and 11 must filled<br>If No > Move to Item 6">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank5_res" onchange="temp5_rank5_res_fn()">
+                                                                {% if not b.4.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.4.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.4.res }}">{{ b.4.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.4.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank5_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.4.temp == 'Feeds.ini/gltrade.ini' %}{{ b.4.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">6</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Father Updated</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Item 10 and 11 must filled<br>If No > Move to Item 7">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank6_res" onchange="temp5_rank6_res_fn()">
+                                                                {% if not b.5.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.5.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.5.res }}">{{ b.5.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.5.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank6_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.5.temp == 'Feeds.ini/gltrade.ini' %}{{ b.5.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">7</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Physical Line Removed</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="If Yes > Item 8 and 9 must filled<br>If No > Move to Item 8">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank7_res" onchange="temp5_rank7_res_fn()">
+                                                                {% if not b.6.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.6.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.6.res }}">{{ b.6.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.6.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank7_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.6.temp == 'Feeds.ini/gltrade.ini' %}{{ b.6.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">8</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">License updated</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="if Yes > mention the changeID<br>If No > move to item 9">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank8_res" onchange="temp5_rank8_res_fn()">
+                                                                {% if not b.7.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.7.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.7.res }}">{{ b.7.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.7.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank8_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.7.temp == 'Feeds.ini/gltrade.ini' %}{{ b.7.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">9</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">mds.ini/slcv5.ini updated</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="if Yes > mention the changeID<br>If No > move to item 10">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank9_res" onchange="temp5_rank9_res_fn()">
+                                                                {% if not b.8.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.8.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.8.res }}">{{ b.8.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.8.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank9_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.8.temp == 'Feeds.ini/gltrade.ini' %}{{ b.8.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">10</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Father Reachable</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="if Yes > Item 5 and 6 can be pushed<br>If No > Change will not be pushed">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span><p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank10_res" onchange="temp5_rank10_res_fn()">
+                                                               {% if not b.9.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.9.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.9.res }}">{{ b.9.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.9.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank10_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.9.temp == 'Feeds.ini/gltrade.ini' %}{{ b.9.res_req }}{% endif %}</textarea>
+                                                        </p></span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">11</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Subnode not used on MDS Father</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="if Yes > Item 5 and 6 can be pushed<br>If No > Change will not be pushed">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <select  required class="show-tick" name="temp5_rank11_res" onchange="temp5_rank11_res_fn()">
+                                                                {% if not b.10.temp == 'Feeds.ini/gltrade.ini' %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                            {% if not b.10.res %}
+                                                                <option value="" style="color: cornflowerblue">-- Please select --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            {% else %}
+                                                                <option value="{{ b.10.res }}">{{ b.10.res }}</option>
+                                                                {% for i in temp5 %}
+                                                                    {% if not i ==  b.10.res %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {% endif %}
+                                                            </select>
+                                                            <textarea disabled name="temp5_rank11_res_req" style="display: none" rows="1" class="form-control no-resize">{% if b.10.temp == 'Feeds.ini/gltrade.ini' %}{{ b.10.res_req }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                            </div>
+                                            <br>
+                                        </ul>
+                                    </div>
+
+                                    <div id="t6">
+                                        <ul class="testTable">
+                                            <div class="testHeader">
+                                                    <li class="testRow">
+                                                        <span>#</span>
+                                                        <span>File.ini Analysis</span>
+                                                        <span>Explanation</span>
+                                                        <span>Result</span>
+                                                    </li>
+                                            </div>
+                                            <div class="testBody">
+                                                <li class="testRow">
+                                                    <span><p align="left">1</p></span>
+                                                    <span><p align="left" style="text-align: justify ;word-wrap: break-word; white-space: -moz-pre-wrap; white-space: pre-wrap;">Change will be done on</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="Status to be filled with the change type<br>The New section to be mentionned if change type= Add or update">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <textarea required name="temp6_rank1_res" rows="1" class="form-control no-resize">{% if b.0.temp == 'File.ini' %}{{ b.0.res }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                                <li class="testRow">
+                                                    <span><p align="left">2</p></span>
+                                                    <span><p align="left" >Parameter</p></span>
+                                                    <span style="vertical-align: middle">
+                                                        <a href="javascript:void(0)" style="color: #3c3c3c" data-trigger="focus" data-container="body" data-toggle="popover"
+                                                        data-html="true" data-placement="right" data-content="Status to be filled with the change type<br>New parameter value/Name to be mentionned if change type= Add or update ">
+                                                            <i class="material-icons">help</i></a>
+                                                    </span>
+                                                    <span>
+                                                        <p align="left">
+                                                            <textarea required name="temp6_rank2_res" rows="1" class="form-control no-resize">{% if b.1.temp == 'File.ini' %}{{ b.1.res }}{% endif %}</textarea>
+                                                        </p>
+                                                    </span>
+                                                </li>
+                                            </div>
+                                            <br>
+                                        </ul>
+                                    </div>
+
+                                    </div>
+                                </div>
+
+                                <input type="submit" class="btn btn-primary btn-lg m-l-15 waves-effect"
+                                       style="margin-left: 80%" value="Add Change"></input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- #END Form#  -->
+    </div>
+</section>
+<!--#Content-->
+
+<script language="JavaScript">
+        function fn() {
+            var e = document.getElementById("ch_category");
+            var ch_team = e.options[e.selectedIndex].value;
+
+            if (ch_team == 'Incident' || ch_team == 'Request') {
+                document.getElementById('incidentOrRequest').style = "";
+                document.getElementById('sr').style = "display: none;";
+                document.getElementById('SDMProject').style = "display: none;";
+                document.getElementById('OpsProject').style = "display: none;";
+                document.getElementById('Problem').style = "display: none;";
+
+            } else if (ch_team == 'SR') {
+                document.getElementById('incidentOrRequest').style = "display: none;";
+                document.getElementById('sr').style = "";
+                document.getElementById('SDMProject').style = "display: none;";
+                document.getElementById('OpsProject').style = "display: none;";
+                document.getElementById('Problem').style = "display: none;";
+
+            }
+            if (ch_team == 'SDM Project') {
+                document.getElementById('incidentOrRequest').style = "display: none;";
+                document.getElementById('sr').style = "display: none;";
+                document.getElementById('SDMProject').style = "";
+                document.getElementById('OpsProject').style = "display: none;";
+                document.getElementById('Problem').style = "display: none;";
+
+            } else if (ch_team == 'Ops Project') {
+                document.getElementById('incidentOrRequest').style = "display: none;";
+                document.getElementById('sr').style = "display: none;";
+                document.getElementById('SDMProject').style = "display: none;";
+                document.getElementById('OpsProject').style = "";
+                document.getElementById('Problem').style = "display: none;";
+
+            } else if (ch_team == 'Problem') {
+                document.getElementById('incidentOrRequest').style = "display: none;";
+                document.getElementById('sr').style = "display: none;";
+                document.getElementById('SDMProject').style = "display: none;";
+                document.getElementById('OpsProject').style = "display: none;";
+                document.getElementById('Problem').style = "";
+
+            }
+        }
+        function fn1() {
+            document.getElementById('incidentOrRequest').style = "display: none;";
+            document.getElementById('sr').style = "display: none;";
+            document.getElementById('SDMProject').style = "display: none;";
+            document.getElementById('OpsProject').style = "display: none;";
+            document.getElementById('Problem').style = "display: none;";
+        }
+        function fn2(){
+            Date.prototype.toDateInputValue = (function() {
+            var local = new Date(this);
+            local.setUTCMinutes(this.getUTCMinutes() - this.getTimezoneOffset());
+            return local.toJSON().slice(0,10);
+            });
+            console.log(new Date().toDateInputValue())
+            document.getElementById('datepicker').value = new Date().toDateInputValue();
+        }
+        function fn3() {
+            var t;
+            var d = ''+'{{ n }}';
+            if ( d!= ''){
+                t = d.split('-')
+                if(t[1].length == 1){
+                    t[1] = '0'+t[1]
+                }
+                if(t[2].length == 1){
+                    t[2] = '0'+t[2]
+                }
+
+                $("#datepicker").val(t[0] +'-'+ t[1] +'-' + t[2]);
+            }
+        }
+        window.onload = fn2()
+        window.onload = fn3()
+        window.onload = fn1()
+        window.onload = fn()
+    </script>
+<script src="{% static 'home/pages/changes/newchange.js' %}"></script>
+{% endif %}
+{% endblock %}
